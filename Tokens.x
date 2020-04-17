@@ -4,9 +4,9 @@
 
 %wrapper "posn"
 
-%digit = 0-9
+$digit = 0-9
 
-%alpha = [a-zA-Z]
+$alpha = [a-zA-Z]
 
 tokens :-
     $white+         ;
@@ -66,6 +66,8 @@ data Token =
     TokenLess AlexPosn          |
     TokenBig AlexPosn           |
     TokenEq AlexPosn            |
+    TokenBigEq AlexPosn         |
+    TokenLessEq AlexPosn        |
     TokenNotEq AlexPosn         |
     TokenWhile AlexPosn         |
     TokenIf AlexPosn            |
@@ -74,32 +76,35 @@ data Token =
     TokenTrue AlexPosn          |
     TokenFalse AlexPosn         |
     TokenVar AlexPosn String
-deriving (Show, Eq)
+    deriving (Eq, Show)
 
-tokenPosn :: Token -> String
-tokenPosn (TokenInt s p) = p
-tokenPosn (TokenPlus )
-tokenPosn (TokenMinus)
-tokenPosn (TokenMult)
-tokenPosn (TokenDiv )
-tokenPosn (TokenMod )
-tokenPosn (TokenAnd )
-tokenPosn (TokenOr )
-tokenPosn (TokenRoundL)
-tokenPosn (TokenRoundR )
-tokenPosn (TokenSquareL )
-tokenPosn (TokenSquareR )
-tokenPosn ()
-tokenPosn ()
-tokenPosn ()
-tokenPosn ()
-tokenPosn ()
-tokenPosn ()
-tokenPosn 
-tokenPosn 
-tokenPosn 
-tokenPosn 
-tokenPosn 
-tokenPosn 
+tokenPosn :: Token -> AlexPosn
+tokenPosn (TokenInt p s ) = p
+tokenPosn (TokenPlus p ) = p
+tokenPosn (TokenMinus p ) = p
+tokenPosn (TokenMult p ) = p
+tokenPosn (TokenDiv p ) = p
+tokenPosn (TokenMod p ) = p
+tokenPosn (TokenAnd p ) = p
+tokenPosn (TokenOr p ) = p
+tokenPosn (TokenRoundL p ) = p
+tokenPosn (TokenRoundR p ) = p
+tokenPosn (TokenSquareL p ) = p
+tokenPosn (TokenSquareR p ) = p
+tokenPosn (TokenColon p ) = p
+tokenPosn (TokenSemiColon p ) = p
+tokenPosn (TokenLess p ) = p
+tokenPosn (TokenBig p ) = p
+tokenPosn (TokenLessEq p ) = p
+tokenPosn (TokenBigEq p ) = p
+tokenPosn (TokenEq p ) = p
+tokenPosn (TokenNotEq p ) = p
+tokenPosn (TokenWhile p ) = p
+tokenPosn (TokenIf p ) = p
+tokenPosn (TokenElse p ) = p
+tokenPosn (TokenFor p ) = p
+tokenPosn (TokenTrue p ) = p
+tokenPosn (TokenFalse p ) = p
+tokenPosn (TokenVar p s ) = p
 
 }
