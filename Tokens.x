@@ -82,35 +82,35 @@ data Token =
     TokenVar AlexPosn String
     deriving (Eq, Show)
 
-tokenPosn :: Token -> AlexPosn
-tokenPosn (TokenInt p s ) = p
-tokenPosn (TokenPlus p ) = p
-tokenPosn (TokenMinus p ) = p
-tokenPosn (TokenMult p ) = p
-tokenPosn (TokenDiv p ) = p
-tokenPosn (TokenMod p ) = p
-tokenPosn (TokenAnd p ) = p
-tokenPosn (TokenOr p ) = p
-tokenPosn (TokenRoundL p ) = p
-tokenPosn (TokenRoundR p ) = p
-tokenPosn (TokenSquareL p ) = p
-tokenPosn (TokenSquareR p ) = p
-tokenPosn (TokenColon p ) = p
-tokenPosn (TokenSemiColon p ) = p
-tokenPosn (TokenLess p ) = p
-tokenPosn (TokenBig p ) = p
-tokenPosn (TokenLessEq p ) = p
-tokenPosn (TokenBigEq p ) = p
-tokenPosn (TokenEq p ) = p
-tokenPosn (TokenNotEq p ) = p
-tokenPosn (TokenWhile p ) = p
-tokenPosn (TokenIf p ) = p
-tokenPosn (TokenElse p ) = p
-tokenPosn (TokenFor p ) = p
-tokenPosn (TokenTrue p ) = p
-tokenPosn (TokenFalse p ) = p
-tokenPosn (TokenTypeInt p ) = p
-tokenPosn (TokenTypeBool p ) = p
-tokenPosn (TokenVar p s ) = p
+tokenPosn :: Token -> String
+tokenPosn (TokenInt (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenPlus (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMinus (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMult (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenDiv (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMod (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenAnd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenOr (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRoundL (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRoundR (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenSquareL (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenSquareR (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenSemiColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLess (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenBig (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLessEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenBigEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenNotEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenWhile (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenIf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenElse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenFor (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenTrue (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenFalse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenTypeInt (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenTypeBool (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 
 }
