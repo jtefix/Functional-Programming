@@ -39,6 +39,8 @@ tokens :-
     for             { tok (\p s -> TokenFor p)}
     true            { tok (\p s -> TokenTrue p)}
     false           { tok (\p s -> TokenFalse p)}
+    Int             { tok (\p s -> TokenTypeInt p) }
+    Bool            { tok (\p s -> TokenTypeBool p)}
     $alpha [$alpha $digit \_ \']*   {tok (\p s -> TokenVar p s)}
 
 {
@@ -75,6 +77,8 @@ data Token =
     TokenFor AlexPosn           |
     TokenTrue AlexPosn          |
     TokenFalse AlexPosn         |
+    TokenTypeInt AlexPosn       |
+    TokenTypeBool AlexPosn      |
     TokenVar AlexPosn String
     deriving (Eq, Show)
 
@@ -105,6 +109,8 @@ tokenPosn (TokenElse p ) = p
 tokenPosn (TokenFor p ) = p
 tokenPosn (TokenTrue p ) = p
 tokenPosn (TokenFalse p ) = p
+tokenPosn (TokenTypeInt p ) = p
+tokenPosn (TokenTypeBool p ) = p
 tokenPosn (TokenVar p s ) = p
 
 }
