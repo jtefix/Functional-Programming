@@ -30,13 +30,13 @@ tokens :-
     \<              { tok (\p s -> TokenLess p)}
     \>              { tok (\p s -> TokenBig p)}
     \=              { tok (\p s -> TokenEq p)}
+    "=="            { tok (\p s -> TokenVerify p)}
     "<="            { tok (\p s -> TokenLessEq p)}  
     ">="            { tok (\p s -> TokenBigEq p)} 
     "!="            { tok (\p s -> TokenNotEq p)}
     while           { tok (\p s -> TokenWhile p)}
     if              { tok (\p s -> TokenIf p)}
     else            { tok (\p s -> TokenElse p)}
-    for             { tok (\p s -> TokenFor p)}
     true            { tok (\p s -> TokenTrue p)}
     false           { tok (\p s -> TokenFalse p)}
     Int             { tok (\p s -> TokenTypeInt p) }
@@ -69,12 +69,12 @@ data Token =
     TokenBig AlexPosn           |
     TokenEq AlexPosn            |
     TokenBigEq AlexPosn         |
+    TokenVerify AlexPosn        |
     TokenLessEq AlexPosn        |
     TokenNotEq AlexPosn         |
     TokenWhile AlexPosn         |
     TokenIf AlexPosn            |
     TokenElse AlexPosn          |
-    TokenFor AlexPosn           |
     TokenTrue AlexPosn          |
     TokenFalse AlexPosn         |
     TokenTypeInt AlexPosn       |
@@ -102,11 +102,11 @@ tokenPosn (TokenBig (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLessEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBigEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenVerify (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenNotEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenWhile (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenIf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenElse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenFor (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTrue (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenFalse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTypeInt (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
