@@ -34,8 +34,13 @@ type TypeEnvironment = [(String, Type)]
 
 getBinding :: String -> TypeEnvironment -> Type
 getBinding x [] = error "Varible binding not found"
-getBinding x ((s, t):env) | x == y = t 
+getBinding x ((s, t):env) | x == s = t 
                           | otherwise = getBinding x env
+
+isBinded :: String -> TypeEnvironment -> Bool
+isBinded x [] = False
+isBinded x ((s,t):env) | x == s = True 
+                       | otherwise = isBinded x env
 
 addBinding :: String -> Type -> TypeEnvironment -> TypeEnvironment
 addBinding s t env = (s, t):env
@@ -77,7 +82,7 @@ checker e (And e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = T
 checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = TypeBool
 
 -- type assignment 
-checker e (TypeAssignment e1 e2) = checker (addBinding e1 (checker e e2) e) e1
+checker e (TypeAssignment e1 e2) | isBinded e1 e == False =  checker (addBinding e1 e2 e) (TypeAssignment e1 e2)
 -- assignment 
 checker e (Assignment e1 e2) | checker e e2 == getBinding e1 e = checker e e2
 
@@ -89,8 +94,13 @@ checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool && (checker e e2) == 
 -- while statement
 checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
 
+--statement list
+checker e (StmtList e1 e2) = 
+
 -- error
 checker e _ = error "Type error"
+
+
 
 -- function that prints the result of checking
 printType :: Type -> String
