@@ -13,6 +13,7 @@ import Tokens
     Int     { TokenTypeInt _ }
     int     { TokenInt _ $$ }
     '='     { TokenEq _ }
+    '!='    { TokenNotEq _ }
     '+'     { TokenPlus _ }
     '-'     { TokenMinus _ }
     '*'     { TokenMult _ }
@@ -42,7 +43,7 @@ import Tokens
 %nonassoc while
 %nonassoc int var true false
 %nonassoc '(' ')' '{' '}'
-%left '<' '<=' '>' '>=' '==' '&&' '||'
+%left '<' '<=' '>' '>=' '==' '!=' '&&' '||'
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
@@ -50,7 +51,6 @@ import Tokens
 
 StmtList : Exp                                                     { SingleExp $1 }
          | StmtList Exp                                            { MultiExp $1 (SingleExp $2)}
-
 
 Exp : if '(' ShortExp ')' '{' StmtList '}'                         { IfStmt $3 $6 }
     | if '(' ShortExp ')' '{' StmtList '}' else '{' StmtList '}'   { IfElseStmt $3 $6 $10 }
@@ -62,7 +62,8 @@ ShortExp : MathExp '<' MathExp                                     { LessThan $1
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
          | MathExp '>' MathExp                                     { BiggerThan $1 $3 }
          | MathExp '>=' MathExp                                    { BiggerOrEqThan $1 $3 }
-         | MathExp '==' MathExp                                    { IsEq $1 $3 }
+         | ShortExp '==' ShortExp                                  { IsEq $1 $3 }
+         | ShortExp '!=' ShortExp                                  { NotEq $1 $3 }
          | ShortExp '&&' ShortExp                                  { And $1 $3 }
          | ShortExp '||' ShortExp                                  { Or $1 $3 }
          | true                                                    { LanTrue }
@@ -103,6 +104,7 @@ data Exp = Plus Exp Exp
          | BiggerThan Exp Exp
          | BiggerOrEqThan Exp Exp
          | IsEq Exp Exp
+         | NotEq Exp Exp
          | And Exp Exp
          | Or Exp Exp
          | LanTrue
@@ -117,5 +119,8 @@ data Exp = Plus Exp Exp
 
 data Type = TypeInt | TypeBool 
       deriving (Show, Eq)
+
+type Environment = [ (String, StmtList) ]      
+
 
 }
