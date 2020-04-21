@@ -15,6 +15,7 @@ tokens :-
     Int              { tok ( \p s -> TokenTypeInt p) }
     $digit+          { tok ( \p s -> TokenInt p (read s)) }
     \=               { tok ( \p s -> TokenEq p) }
+    \!=              { tok ( \p s -> TokenNotEq p) }
     \+               { tok ( \p s -> TokenPlus p) }
     \-               { tok ( \p s -> TokenMinus p) }
     \*               { tok ( \p s -> TokenMult p) }
@@ -59,6 +60,7 @@ data Token =
     TokenBiggerThan AlexPosn        |
     TokenBiggerOrEqThan AlexPosn    |
     TokenIsEq AlexPosn              |
+    TokenNotEq AlexPosn             |
     TokenAnd AlexPosn               |
     TokenOr AlexPosn                |
     TokenIf AlexPosn                |
@@ -89,6 +91,7 @@ tokenPosn (TokenLessOrEqThan (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBiggerThan (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenBiggerOrEqThan (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenIsEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenNotEq (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAnd (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenOr (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenIf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
