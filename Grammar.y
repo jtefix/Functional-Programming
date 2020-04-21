@@ -7,114 +7,113 @@ import Tokens
 %tokentype { Token }
 %error { parseError }
 
--- Tokens
+--Tokens
 %token
-    --digit { TokenInt _ $$ }
-    '+' { TokenPlus _ }
-    '-' { TokenMinus _ }
-    '*' { TokenMult _ }
-    '/' { TokenDiv _ }
-    '%' { TokenMod _ }
-    '&&' { TokenAnd _ }
-    '||' { TokenOr _ }
-    '(' { TokenRoundL _ }
-    ')' { TokenRoundR _ }
-    --'[' { TokenSquareL _ }
-    --']' { TokenSquareR _ }
-    '{' { TokenCurlyL _ }
-    '}' { TokenCurlyR _ }
-    --':' { TokenColon _ }
-    ';' { TokenSemiColon _ }
-    '<' { TokenLess _ }
-    '>' { TokenBig _ }
-    '=' { TokenEq _ }
-    '==' { TokenVerify _ }
-    '<=' { TokenLessEq _ }
-    '>=' { TokenBigEq _ }
-    '!=' { TokenNotEq _ }
-    while { TokenWhile _ }
-    if { TokenIf _ }
-    else { TokenElse _ }
-    true { TokenTrue _ }
-    false { TokenTrue _ }
-    Int { TokenTypeInt _ }
-    -- Bool { TokenTypeBool _ }
-    var { TokenVar _ $$ }
+    Bool    { TokenTypeBool _ }
+    Int     { TokenTypeInt _ }
+    int     { TokenInt _ $$ }
+    '='     { TokenEq _ }
+    '+'     { TokenPlus _ }
+    '-'     { TokenMinus _ }
+    '*'     { TokenMult _ }
+    '/'     { TokenDiv _ }
+    '%'     { TokenMod _ }
+    '<'     { TokenLessThan _ }
+    '<='    { TokenLessOrEqThan _ }
+    '>'     { TokenBiggerThan _ }
+    '>='    { TokenBiggerOrEqThan _ }
+    '=='    { TokenIsEq _ }
+    '&&'    { TokenAnd _ }
+    '||'    { TokenOr _ }
+    if      { TokenIf _ }
+    else    { TokenElse _ }
+    while   { TokenWhile _ }
+    true    { TokenTrue _ }
+    false   { TokenFalse _ }
+    ';'     { TokenSemiCol _ }
+    '('     { TokenLRoundB _ }
+    ')'     { TokenRRoundB _ }
+    '{'     { TokenLCurlyB _ }
+    '}'     { TokenRCurlyB _ } 
+    var     { TokenVar _ $$ }
 
-%nonassoc if 
+%nonassoc if
 %nonassoc else
 %nonassoc while
-%nonassoc Int var --digit
-%nonassoc true false --Bool
-%nonassoc ';' --':'
-%nonassoc '(' ')'  '{' '}' --'[' ']'
-%right '='
-%left '&&' '||'
-%left '==' '!='
-%left '<' '>' '<=' '>=' 
+%nonassoc int var true false
+%nonassoc '(' ')' '{' '}'
+%left '<' '<=' '>' '>=' '==' '&&' '||'
 %left '+' '-'
 %left '*' '/' '%'
---%left NEG
+%right '='
 %%
 
-Exp : if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'    { If $3 $6 $10 }
-    | while '(' ShortExp ')' '{' Exp '}'             { While $3 $6 }
-    | var '=' Exp ';'                                { Assignment $1 $3 }
-    | Exp '+' Exp                                    { Plus $1 $3 }
-    | Exp '-' Exp                                    { Minus $1 $3 }
-    | Exp '/' Exp                                    { Divide $1 $3 }
-    | Exp '*' Exp                                    { Multiply $1 $3 }
-    | Exp '%' Exp                                    { Modulo $1 $3 }
-    | '(' Exp ')'                                    { $1 }
-    | Int                                            { Int $1 }
-    | var                                            { Var $1 }
-    | true                                           { BoolTrue }
-    | false                                          { BoolFalse }
+Exp : if '(' ShortExp ')' '{' StmtList '}'                         { IfStmt $3 $6 }
+    | if '(' ShortExp ')' '{' StmtList '}' else '{' StmtList '}'   { IfElseStmt $3 $6 $10 }
+    | while '(' ShortExp ')' '{' StmtList '}'                      { WhileExp $3 $6 }
+    | var '=' MathExp ';'                                          { Assignment $1 $3 }
+    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
+   
+ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
+         | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
+         | MathExp '>' MathExp                                     { BiggerThan $1 $3 }
+         | MathExp '>=' MathExp                                    { BiggerOrEqThan $1 $3 }
+         | MathExp '==' MathExp                                    { IsEq $1 $3 }
+         | ShortExp '&&' ShortExp                                  { And $1 $3 }
+         | ShortExp '||' ShortExp                                  { Or $1 $3 }
+         | true                                                    { LanTrue }
+         | false                                                   { LanFalse }
 
-ShortExp : ShortExp '&&' ShortExp                    { And $1 $3 }
-    | ShortExp '||' ShortExp                         { Or $1 $3 }
-    | ShortExp '<' ShortExp                          { LessThen $1 $3 }
-    | ShortExp '>' ShortExp                          { BiggerThen $1 $3 }
-    | ShortExp '==' ShortExp                         { Equal $1 $3 }
-    | ShortExp '<=' ShortExp                         { LessOrEqualThen $1 $3 }
-    | ShortExp '>=' ShortExp                         { BiggerOrEqualThen $1 $3 }
-    | ShortExp '!=' ShortExp                         { NotEqual $1 $3 }
-    | ShortExp '+' ShortExp                          { Plus $1 $3 }
-    | ShortExp '-' ShortExp                          { Minus $1 $3 }
-    | ShortExp '/' ShortExp                          { Divide $1 $3 }
-    | ShortExp '*' ShortExp                          { Multiply $1 $3 }
-    | ShortExp '%' ShortExp                          { Modulo $1 $3 }
-    | '(' ShortExp ')'                               { $1 }
-    | true                                           { BoolTrue }
-    | false                                          { BoolFalse }
-    | Int                                            { Int $1 }
-    | var                                            { Var $1 }
+MathExp : MathExp '+' MathExp                                      { Plus $1 $3 }
+        | MathExp '-' MathExp                                      { Minus $1 $3 }
+        | MathExp '*' MathExp                                      { Mult $1 $3 }
+        | MathExp '/' MathExp                                      { Div $1 $3 }
+        | MathExp '%' MathExp                                      { Mod $1 $3 }
+        | '(' Exp ')'                                              { $2 }
+        | int                                                      { LanInt $1 }
+        | var                                                      { LanVar $1 }
 
+StmtList : Exp                                                     { SingleExp $1 }
+         | StmtList Exp                                            { MultiExp $1 (SingleExp $2)}
+
+Type : Bool { TypeBool }
+     | Int { TypeInt }
 
 {
 -- error function
 parseError :: [Token] -> a
 parseError [] = error "Unknown parse error"
-parseError (t:_) = error ("Parse error at " ++ (show $ tokenPosn t))
+parseError (t:_) = error ("Parse error at line:column " ++ ( tokenPosn t))
 
-data Exp = If Exp Exp Exp
-         | While Exp Exp
-         | Assignment Exp Exp
-         | Plus Exp Exp
+data Type = TypeInt | TypeBool 
+      deriving (Show, Eq)
+
+data Exp = Plus Exp Exp
+         | Assignment String Exp
+         | TypeAssignment String Type
+         | StmtList Exp Exp
          | Minus Exp Exp
-         | Multiply Exp Exp
-         | Divide Exp Exp
-         | Modulo Exp Exp
-         | BoolTrue
-         | BoolFalse
+         | Mult Exp Exp
+         | Div Exp Exp
+         | Mod Exp Exp
+         | LessThan Exp Exp
+         | LessOrEqThan Exp Exp
+         | BiggerThan Exp Exp
+         | BiggerOrEqThan Exp Exp
+         | IsEq Exp Exp
          | And Exp Exp
          | Or Exp Exp
-         | LessThen Exp Exp
-         | BiggerThen Exp Exp
-         | LessOrEqualThen Exp Exp
-         | BiggerOrEqualThen Exp Exp
-         | NotEqual Exp Exp
-         | Integer Int
-         | Var String
-        deriving (Show, Eq)
+         | LanTrue
+         | LanFalse
+         | LanInt Int
+         | LanVar String
+         | IfStmt Exp StmtList
+         | IfElseStmt Exp StmtList StmtList
+         | WhileExp Exp StmtList
+    deriving (Show, Eq)
+
+data StmtList = SingleExp Exp
+              | MultiExp StmtList StmtList
+             deriving (Show, Eq)
+
 }
