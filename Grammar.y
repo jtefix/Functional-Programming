@@ -47,16 +47,14 @@ import Tokens
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
+%left APP
 %%
 
-StmtList : Exp                                                     { SingleExp $1 }
-         | StmtList Exp                                            { MultiExp $1 (SingleExp $2)}
-
-Exp : if '(' ShortExp ')' '{' StmtList '}'                         { IfStmt $3 $6 }
-    | if '(' ShortExp ')' '{' StmtList '}' else '{' StmtList '}'   { IfElseStmt $3 $6 $10 }
-    | while '(' ShortExp ')' '{' StmtList '}'                      { WhileExp $3 $6 }
+Exp : if '(' ShortExp ')' '{' Exp '}'                         { IfStmt $3 $6 }
+    | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'   { IfElseStmt $3 $6 $10 }
+    | while '(' ShortExp ')' '{' Exp '}'                      { WhileExp $3 $6 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
-    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
+    | Exp Exp %prec APP                                     { App $1 $2 }
    
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
@@ -87,14 +85,9 @@ parseError :: [Token] -> a
 parseError [] = error "Unknown parse error"
 parseError (t:_) = error ("Parse error at line:column " ++ ( tokenPosn t))
 
-data StmtList = SingleExp Exp
-              | MultiExp StmtList StmtList
-             deriving (Show, Eq)
-
-data Exp = Plus Exp Exp
+data Exp = App Exp Exp
          | Assignment String Exp
-         | TypeAssignment String Type
-         | StmtList Exp Exp
+         | Plus Exp Exp
          | Minus Exp Exp
          | Mult Exp Exp
          | Div Exp Exp
@@ -111,16 +104,16 @@ data Exp = Plus Exp Exp
          | LanFalse
          | LanInt Int
          | LanVar String
-         | IfStmt Exp StmtList
-         | IfElseStmt Exp StmtList StmtList
-         | WhileExp Exp StmtList
+         | IfStmt Exp Exp
+         | IfElseStmt Exp Exp Exp
+         | WhileExp Exp Exp
     deriving (Show, Eq)
 
 
 data Type = TypeInt | TypeBool 
       deriving (Show, Eq)
 
-type Environment = [ (String, StmtList) ]      
+--type Environment = [ (String, StmtList) ]      
 
 
 }
