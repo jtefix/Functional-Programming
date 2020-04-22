@@ -82,25 +82,28 @@ checker e (And e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = T
 checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = TypeBool
 
 -- type assignment 
-checker e (TypeAssignment e1 e2) | isBinded e1 e == False =  checker (addBinding e1 e2 e) (TypeAssignment e1 e2)
+checker e (TypeAssignment str t) | isBinded str e == False =  checker (addBinding str t e) (TypeAssignment str t)
+                                 | otherwise = t
 -- assignment 
-checker e (Assignment e1 e2) | checker e e2 == getBinding e1 e = checker e e2
+checker e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = checker e e2
 
 -- if statement
 checker e (IfStmt e1 e2) | checker e e1 == TypeBool = checker e e2
+                             | otherwise = error "Type error in if"
 -- if else statement
-checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool && (checker e e2) == (checker e e3) = checker e e2
+checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool = checker e e2
+                                | otherwise = error "Type error in if-else"
 
 -- while statement
 checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
-
---statement list
-checker e (StmtList e1 e2) = 
+                           | otherwise = error "Type error in while"
 
 -- error
-checker e _ = error "Type error"
 
 
+-- stmChecker :: TypeEnvironment -> StmtList -> Type
+-- stmChecker e (SingleExp e1) = checker e1
+-- stmChecker e (MultiExp e1 e2) = 
 
 -- function that prints the result of checking
 printType :: Type -> String
