@@ -50,11 +50,12 @@ import Tokens
 %left APP
 %%
 
-Exp : if '(' ShortExp ')' '{' Exp '}'                         { IfStmt $3 $6 }
-    | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'   { IfElseStmt $3 $6 $10 }
-    | while '(' ShortExp ')' '{' Exp '}'                      { WhileExp $3 $6 }
+Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $6 }
+    | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'             { IfElseStmt $3 $6 $10 }
+    | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
-    | Exp Exp %prec APP                                     { App $1 $2 }
+    | var '=' Type ';'                                             { TypeAssignment $1 $3 } 
+    | Exp Exp %prec APP                                            { App $1 $2 }
    
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
@@ -87,6 +88,7 @@ parseError (t:_) = error ("Parse error at line:column " ++ ( tokenPosn t))
 
 data Exp = App Exp Exp
          | Assignment String Exp
+         | TypeAssignment String Type
          | Plus Exp Exp
          | Minus Exp Exp
          | Mult Exp Exp
