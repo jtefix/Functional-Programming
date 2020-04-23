@@ -1,9 +1,6 @@
 module TypeCheck where
 import Grammar
 
--- data StmtList = SingleExp Exp
---               | MultiExp StmtList StmtList
---              deriving (Show, Eq)
 -- data Exp = Plus Exp Exp
 --          | Assignment String Exp
 --          | TypeAssignment String Type
@@ -45,8 +42,28 @@ isBinded x ((s,t):env) | x == s = True
 addBinding :: String -> Type -> TypeEnvironment -> TypeEnvironment
 addBinding s t env = (s, t):env
 
-checker :: TypeEnvironment -> Exp -> Type
+updateBinding :: String -> Type -> TypeEnvironment -> TypeEnvironment -> TypeEnvironment
+updateBinding s t [] newEnv = newEnv
+updateBinding s t ((x,y): oldEnv) newEnv | s == x = (s,t) : newEnv ++ oldEnv
+                                         | otherwise = updateBinding s t oldEnv ((x,y):newEnv)
 
+updateEnv :: TypeEnvironment -> Exp -> TypeEnvironment 
+-- Base cases
+updateEnv e (LanInt x) = e
+updateEnv e (LanVar x) = e
+updateEnv e (LanTrue) = e
+updateEnv e (LanFalse) = e
+-- Multiple Expressions
+updateEnv e (App e1 e2) = updateEnv (updateEnv e e1) e2
+-- Type Assignment
+updateEnv e (TypeAssignment str t) | isBinded str e == False = updateEnv (addBinding str t e) (TypeAssignment str t)
+                                   | getBinding str e == t = e
+                                   | otherwise = updateEnv (updateBinding str t e []) (TypeAssignment str t)
+-- Assignment
+updateEnv e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = updateEnv e e2
+updateEnv e _ = e
+
+checker :: TypeEnvironment -> Exp -> Type
 -- base cases
 checker e (LanInt x) = TypeInt
 checker e (LanVar x) = getBinding x e
@@ -82,14 +99,14 @@ checker e (And e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = T
 checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = TypeBool
 
 -- type assignment 
-checker e (TypeAssignment str t) | isBinded str e == False =  checker (addBinding str t e) (TypeAssignment str t)
+checker e (TypeAssignment str t) | isBinded str e == False = checker (addBinding str t e) (TypeAssignment str t)
                                  | otherwise = t
 -- assignment 
 checker e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = checker e e2
 
 -- if statement
 checker e (IfStmt e1 e2) | checker e e1 == TypeBool = checker e e2
-                             | otherwise = error "Type error in if"
+                         | otherwise = error "Type error in if"
 -- if else statement
 checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool = checker e e2
                                 | otherwise = error "Type error in if-else"
@@ -98,12 +115,11 @@ checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool = checker e e2
 checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
                            | otherwise = error "Type error in while"
 
+-- App
+checker e (App e1 e2 ) | checker e e1 == TypeInt || checker e e1 == TypeBool = checker (updateEnv e e1) e2
+
 -- error
-
-
--- stmChecker :: TypeEnvironment -> StmtList -> Type
--- stmChecker e (SingleExp e1) = checker e1
--- stmChecker e (MultiExp e1 e2) = 
+checker e _ = error "Type Error"
 
 -- function that prints the result of checking
 printType :: Type -> String

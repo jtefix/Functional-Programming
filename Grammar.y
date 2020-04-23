@@ -47,13 +47,15 @@ import Tokens
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
-%left APP
+%right APP
 %%
 
 Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $6 }
     | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'             { IfElseStmt $3 $6 $10 }
     | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
+    | var '=' false ';'                                            { TypeAssignment $1 TypeBool }
+    | var '=' true ';'                                             { TypeAssignment $1 TypeBool }
     | var '=' Type ';'                                             { TypeAssignment $1 $3 } 
     | Exp Exp %prec APP                                            { App $1 $2 }
    
@@ -61,10 +63,11 @@ ShortExp : MathExp '<' MathExp                                     { LessThan $1
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
          | MathExp '>' MathExp                                     { BiggerThan $1 $3 }
          | MathExp '>=' MathExp                                    { BiggerOrEqThan $1 $3 }
-         | ShortExp '==' ShortExp                                  { IsEq $1 $3 }
-         | ShortExp '!=' ShortExp                                  { NotEq $1 $3 }
+         | MathExp '==' MathExp                                    { IsEq $1 $3 }
+         | MathExp '!=' MathExp                                    { NotEq $1 $3 }
          | ShortExp '&&' ShortExp                                  { And $1 $3 }
          | ShortExp '||' ShortExp                                  { Or $1 $3 }
+         | '(' ShortExp ')'                                        { $2 }
          | true                                                    { LanTrue }
          | false                                                   { LanFalse }
 
