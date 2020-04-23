@@ -118,7 +118,6 @@ data Exp = App Exp Exp
 data Type = TypeInt | TypeBool 
       deriving (Show, Eq)
 
---type Environment = [ (String, StmtList) ]      
-
+type Environment = [ (String,Exp) ]  
 
 }

@@ -3,6 +3,7 @@ module Main where
 import Tokens
 import Grammar
 import TypeCheck
+import Eval
 import System.Environment
 import Control.Exception
 import System.IO
@@ -17,7 +18,11 @@ main' = do
     let string = parseCalc (alexScanTokens contents)
     putStrLn ("Parsed text: " ++ show string)
     let typeOf = checker [] string
-    putStrLn ("typeCheck; " ++ show typeOf) 
+    putStrLn ("typeCheck: " ++ show typeOf) 
+    putStrLn ("Type Checking Passed with type " ++ (printType typeOf) ++ "\n") 
+    let result = evalLoop (string)
+    putStrLn ("Evaluates to " ++ (unparse result) ++ "\n")
+
 
 noParse :: ErrorCall -> IO ()
 noParse e = do
