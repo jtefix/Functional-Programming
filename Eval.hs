@@ -2,6 +2,10 @@ module Eval where
 import Grammar
 
 data Frame = PlusH Exp | HPlus Exp Environment 
+           | MinusH Exp | HMinus Exp Environment
+           | MultH Exp | HMult Exp Environment
+           | DivH Exp | HDiv Exp Environment
+           | ModH Exp | HMod Exp Environment
            | LessThanH Exp | HLessThan Exp Environment
            | LessOrEqThanH Exp | HLessOrEqThan Exp Environment
            | BiggerThanH Exp | HBiggerThan Exp Environment
@@ -40,6 +44,26 @@ eval1 ((Plus e1 e2),env,k) = (e1,env,(HPlus e2 env):k)
 eval1 ((LanInt n),env1,(HPlus e env2):k) = (e,env2,(PlusH (LanInt n)) : k)
 eval1 ((LanInt m),env,(PlusH (LanInt n)):k) = (LanInt (n + m),[],k)
 
+-- Evaluation rules for minus operator
+eval1 ((Minus e1 e2),env,k) = (e1,env,(HMinus e2 env):k)
+eval1 ((LanInt n),env1,(HMinus e env2):k) = (e,env2,(MinusH (LanInt n)) : k)
+eval1 ((LanInt m),env,(MinusH (LanInt n)):k) = (LanInt (n + m),[],k)
+
+-- Evaluation rules for times operator
+eval1 ((Mult e1 e2),env,k) = (e1,env,(HMult e2 env):k)
+eval1 ((LanInt n),env1,(HMult e env2):k) = (e,env2,(MultH (LanInt n)) : k)
+eval1 ((LanInt m),env,(MultH (LanInt n)):k) = (LanInt (n + m),[],k)
+
+-- Evaluation rules for divide operator
+eval1 ((Div e1 e2),env,k) = (e1,env,(HDiv e2 env):k)
+eval1 ((LanInt n),env1,(HDiv e env2):k) = (e,env2,(DivH (LanInt n)) : k)
+eval1 ((LanInt m),env,(DivH (LanInt n)):k) = (LanInt (n + m),[],k)
+
+-- Evaluation rules for mod operator
+eval1 ((Mod e1 e2),env,k) = (e1,env,(HMod e2 env):k)
+eval1 ((LanInt n),env1,(HMod e env2):k) = (e,env2,(ModH (LanInt n)) : k)
+eval1 ((LanInt m),env,(ModH (LanInt n)):k) = (LanInt (n + m),[],k)
+
 -- Evaluation rules for less than operator
 eval1 ((LessThan e1 e2), env, k) = (e1, env, (HLessThan e2 env):k)
 eval1 ((LanInt n), env1, (HLessThan e env2):k) = (e, env2, (LessThanH (LanInt n)):k)
@@ -73,20 +97,25 @@ eval1 ((LanInt m), env, (IsEqH (LanInt n)):k) | n == m = (LanTrue,[],k)
 -- Evaluation rules for not equal operator
 eval1 ((NotEq e1 e2), env, k) = (e1, env, (HNotEq e2 env):k)
 eval1 ((LanInt n), env1, (HNotEq e env2):k) = (e, env2, (NotEqH (LanInt n)):k)
-eval1 ((LanInt m), env, (NotEqH (LanInt n)):k) | n != m = (LanTrue,[],k)
+eval1 ((LanInt m), env, (NotEqH (LanInt n)):k) | n /= m = (LanTrue,[],k)
                                                | otherwise = (LanFalse,[],k)
 
 -- Evaluation rules for and operator
 eval1 ((And e1 e2), env, k) = (e1, env, (HAnd e2 env):k)
-eval1 ((LanBool n), env1, (HAnd e env2):k) = (e, env2, (AndH (LanBool n)):k)
-eval1 ((LanBool m), env, (AndH (LanBool n)):k) | n && m = (LanTrue,[],k)
-                                              | otherwise = (LanFalse,[],k)
+eval1 (LanTrue, env1, (HAnd e env2):k) = (e, env2, (AndH LanTrue):k)
+eval1 (LanFalse, env1, (HAnd e env2):k) = (e, env2, (AndH LanFalse):k)
+eval1 (LanTrue, env, (AndH LanTrue):k) = (LanTrue,[],k)
+eval1 (LanTrue, env, (AndH LanFalse):k) = (LanFalse,[],k)
+eval1 (LanFalse, env, _:k) = (LanFalse,[],k)
 
 -- Evaluation rules for or operator
 eval1 ((Or e1 e2), env, k) = (e1, env, (HOr e2 env):k)
-eval1 ((LanBool n), env1, (HOr e env2):k) = (e, env2, (OrH (LanBool n)):k)
-eval1 ((LanBool m), env, (OrH (LanBool n)):k) | n || m = (LanTrue,[],k)
-                                            | otherwise = (LanFalse,[],k)
+eval1 (LanTrue, env1, (HOr e env2):k) = (e, env2, (OrH LanTrue):k)
+eval1 (LanFalse, env1, (HOr e env2):k) = (e, env2, (OrH LanFalse):k)
+eval1 (LanFalse, env, (OrH LanTrue):k) = (LanTrue,[],k)
+eval1 (LanFalse, env, (OrH LanFalse):k) = (LanFalse,[],k)
+eval1 (LanTrue, env, _:k) = (LanTrue,[],k)
+            
 
 
 
