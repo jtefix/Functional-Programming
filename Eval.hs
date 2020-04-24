@@ -16,6 +16,7 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | OrH Exp | HOr Exp Environment
            | HIfStmt Exp Environment
            | HIfElseStmt Exp Exp Environment
+           | HAssignment String Environment
 
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation)
@@ -130,6 +131,9 @@ eval1 ((IfElseStmt e1 e2 e3), env, k) = (e1, env, (HIfElseStmt e2 e3 env):k)
 eval1 ((LanTrue), env1, (HIfElseStmt e2 e3 env2):k) = (e2, env2, k) 
 eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k) = (e3, env2, k) 
 
+-- Evaluation rules for Assignment statement
+eval1 ((Assignment str e1),env,k) = (e1,env,(HAssignment str env):k)
+eval1 (v,env1,(HAssignment str env2):k) | isValue v = (e, update env2 str v , k)
 
 eval1 _ = error "BAG PULA DC NU STIU SI OR"
 
