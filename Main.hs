@@ -20,7 +20,7 @@ main' = do
     let typeOf = checker [] string
     putStrLn ("typeCheck: " ++ show typeOf) 
     putStrLn ("Type Checking Passed with type " ++ (printType typeOf) ++ "\n") 
-    let result = evalLoop ((IfElseStmt (Or (LessThan (LanInt 3) (LanInt 4)) (LessThan (LanInt 5) (LanInt 6))) (Plus (LanInt 4) (LanInt 23)) (Plus (LanInt 2) (LanInt 2))))
+    let result = evalLoop (App ((IfStmt (LessThan (LanInt 7) (LanInt 4)) (Plus (LanInt 4) (LanInt 23)))) (Plus (LanInt 2) (LanInt 4)))
     putStrLn ("Evaluates to " ++ (unparse result) ++ "\n")
 
 
