@@ -110,18 +110,15 @@ eval1 ((LanInt m), env, (NotEqH (LanInt n)):k) | n /= m = (LanTrue,[],k)
 -- Evaluation rules for and operator
 eval1 ((And e1 e2), env, k) = (e1, env, (HAnd e2 env):k)
 eval1 (LanTrue, env1, (HAnd e env2):k) = (e, env2, (AndH LanTrue):k)
-eval1 (LanFalse, env1, (HAnd e env2):k) = (e, env2, (AndH LanFalse):k)
+eval1 (LanFalse, env1, (HAnd e env2):k) = (LanFalse,[],k)
 eval1 (LanTrue, env, (AndH LanTrue):k) = (LanTrue,[],k)
 eval1 (LanTrue, env, (AndH LanFalse):k) = (LanFalse,[],k)
-eval1 (LanFalse, env, _:k) = (LanFalse,[],k)
 
 -- Evaluation rules for or operator
 eval1 ((Or e1 e2), env, k) = (e1, env, (HOr e2 env):k)
-eval1 (LanTrue, env1, (HOr e env2):k) = (e, env2, (OrH LanTrue):k)
+eval1 (LanTrue, env1, (HOr e env2):k) = (LanTrue,[],k)
 eval1 (LanFalse, env1, (HOr e env2):k) = (e, env2, (OrH LanFalse):k)
-eval1 (LanFalse, env, (OrH LanTrue):k) = (LanTrue,[],k)
 eval1 (LanFalse, env, (OrH LanFalse):k) = (LanFalse,[],k)
-eval1 (LanTrue, env, _:k) = (LanTrue,[],k)
             
 -- Evaluation rules for if statement
 eval1 ((IfStmt e1 e2), env, k) = (e1, env, (HIfStmt e2 env):k)
