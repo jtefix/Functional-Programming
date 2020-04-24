@@ -14,6 +14,8 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | NotEqH Exp | HNotEq Exp Environment
            | AndH Exp | HAnd Exp Environment
            | OrH Exp | HOr Exp Environment
+           | HIfStmt Exp Environment
+           | HIfElseStmt Exp Exp Environment
 
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation)
@@ -121,10 +123,18 @@ eval1 (LanFalse, env, (OrH LanTrue):k) = (LanTrue,[],k)
 eval1 (LanFalse, env, (OrH LanFalse):k) = (LanFalse,[],k)
 eval1 (LanTrue, env, _:k) = (LanTrue,[],k)
             
+-- Evaluation rules for if statement
+eval1 ((IfStmt e1 e2), env, k) = (e1, env, (HIfStmt e2 env):k)
+eval1 ((LanTrue), env1, (HIfStmt e2 env2):k) = (e2, env2, k)
+eval1 ((LanFalse), env1, (HIfStmt e2 env2):k) =  (LanFalse, [], k)
+
+-- Evaluation rules for if-else statement
+eval1 ((IfElseStmt e1 e2 e3), env, k) = (e1, env, (HIfElseStmt e2 e3 env):k)
+eval1 ((LanTrue), env1, (HIfElseStmt e2 e3 env2):k) = (e2, env2, k) 
+eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k) = (e3, env2, k) 
 
 
-
-eval1 _ = error "BAG PULA DC NU STIU SI AND"
+eval1 _ = error "BAG PULA DC NU STIU SI OR"
 
 -- Function to iterate the small step reduction to termination
 evalLoop :: Exp -> Exp
