@@ -16,6 +16,8 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | OrH Exp | HOr Exp Environment
            | HIfStmt Exp Environment
            | HIfElseStmt Exp Exp Environment
+           | HAssignment String Environment
+           | HTypeAssignment String Environment
 
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation)
@@ -23,6 +25,9 @@ type State = (Exp, Environment, Kontinuation)
 getValueBinding :: String -> Environment -> (Exp, Environment)
 getValueBinding x [] = error "Variable binding not found"
 getValueBinding x ((y,e):env) = getValueBinding x env
+
+-- updateEnvironment :: String -> Exp -> Environment -> Environment
+-- updateEnvironment str t env = [(str, t)] ++ env
 
 update :: Environment -> String -> Exp ->Environment
 update env x e = (x,e) : env
@@ -130,6 +135,17 @@ eval1 ((IfElseStmt e1 e2 e3), env, k) = (e1, env, (HIfElseStmt e2 e3 env):k)
 eval1 ((LanTrue), env1, (HIfElseStmt e2 e3 env2):k) = (e2, env2, k) 
 eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k) = (e3, env2, k) 
 
+-- Evaluation for assignment
+eval1 ((Assignment str e), env, k) = (e, env, (HAssignment str env):k)
+eval1 (e, env1, (HAssignment str env2):k) | isTerminated x = (x, update env2 str x, k)
+  where x = evalLoop e
+
+-- Evaluation for type assignment
+-- eval1 ((TypeAssignment str t), env1, k) = ((TypeAssignment str t), env2, (HTypeAssignment str env2):k)  
+--   where env2 = updateEnvironment str t env
+
+-- Evaluation for while loop
+-- eval1 ((While e1 e2), env, k) | evalLoop e1 == LanTrue = 
 
 eval1 _ = error "BAG PULA DC NU STIU SI OR"
 
@@ -138,6 +154,9 @@ evalLoop :: Exp -> Exp
 evalLoop e = evalLoop' (e,[],[])
   where evalLoop' (e,env,k) = if (e' == e) && (isTerminated e') && (null k) then e' else evalLoop' (e',env',k')
                        where (e',env',k') = eval1 (e,env,k) 
+
+-- evalWhile :: State -> 
+-- evalWhile ((While e1 e2), env, k) | evalLoop e1 == LanTrue = evalWhile ((While e1 e2), env, k)
 
 -- Function to unparse underlying values from the AST term
 unparse :: Exp -> String 
