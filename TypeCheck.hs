@@ -80,6 +80,9 @@ checker e (Mult e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = Ty
 checker e (Div e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
 -- modulo
 checker e (Mod e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
+-- negate
+checker e (Negate e1) | checker e e1 == TypeInt = TypeInt
+
 
 -- less than
 checker e (LessThan e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeBool
