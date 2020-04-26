@@ -52,6 +52,9 @@ eval1 ((LanVar x),env,k) = (e',env',k)
 -- Rule for terminated evaluations
 eval1 (v,env,[]) | isTerminated v = (v,env,[])
 
+-- Evaluation for negate operator
+eval1 ((Negate e), env, k) = (LanTrue, env, k)
+
 -- Evaluation rules for plus operator
 eval1 ((Plus e1 e2),env,k) = (e1,env,(HPlus e2 env):k)
 eval1 ((LanInt n),env1,(HPlus e env2):k) = (e,env2,(PlusH (LanInt n)) : k)
