@@ -47,6 +47,7 @@ import Tokens
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
+%left NEG
 %right APP
 %%
 
@@ -76,6 +77,7 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
         | MathExp '*' MathExp                                      { Mult $1 $3 }
         | MathExp '/' MathExp                                      { Div $1 $3 }
         | MathExp '%' MathExp                                      { Mod $1 $3 }
+        | '-' MathExp %prec NEG                                    { Negate $2 }
         | '(' Exp ')'                                              { $2 }
         | int                                                      { LanInt $1 }
         | var                                                      { LanVar $1 }
@@ -97,6 +99,7 @@ data Exp = App Exp Exp
          | Mult Exp Exp
          | Div Exp Exp
          | Mod Exp Exp
+         | Negate Exp
          | LessThan Exp Exp
          | LessOrEqThan Exp Exp
          | BiggerThan Exp Exp
