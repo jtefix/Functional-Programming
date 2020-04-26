@@ -9,40 +9,44 @@ import Tokens
 
 --Tokens
 %token
-    Bool    { TokenTypeBool _ }
-    Int     { TokenTypeInt _ }
-    int     { TokenInt _ $$ }
-    '='     { TokenEq _ }
-    '!='    { TokenNotEq _ }
-    '+'     { TokenPlus _ }
-    '-'     { TokenMinus _ }
-    '*'     { TokenMult _ }
-    '/'     { TokenDiv _ }
-    '%'     { TokenMod _ }
-    '<'     { TokenLessThan _ }
-    '<='    { TokenLessOrEqThan _ }
-    '>'     { TokenBiggerThan _ }
-    '>='    { TokenBiggerOrEqThan _ }
-    '=='    { TokenIsEq _ }
-    '&&'    { TokenAnd _ }
-    '||'    { TokenOr _ }
-    if      { TokenIf _ }
-    else    { TokenElse _ }
-    while   { TokenWhile _ }
-    true    { TokenTrue _ }
-    false   { TokenFalse _ }
-    ';'     { TokenSemiCol _ }
-    '('     { TokenLRoundB _ }
-    ')'     { TokenRRoundB _ }
-    '{'     { TokenLCurlyB _ }
-    '}'     { TokenRCurlyB _ } 
-    var     { TokenVar _ $$ }
+    Bool        { TokenTypeBool _ }
+    Int         { TokenTypeInt _ }
+    int         { TokenInt _ $$ }
+    '='         { TokenEq _ }
+    '!='        { TokenNotEq _ }
+    '+'         { TokenPlus _ }
+    '-'         { TokenMinus _ }
+    '*'         { TokenMult _ }
+    '/'         { TokenDiv _ }
+    '%'         { TokenMod _ }
+    '<'         { TokenLessThan _ }
+    '<='        { TokenLessOrEqThan _ }
+    '>'         { TokenBiggerThan _ }
+    '>='        { TokenBiggerOrEqThan _ }
+    '=='        { TokenIsEq _ }
+    '&&'        { TokenAnd _ }
+    '||'        { TokenOr _ }
+    if          { TokenIf _ }
+    else        { TokenElse _ }
+    while       { TokenWhile _ }
+    true        { TokenTrue _ }
+    false       { TokenFalse _ }
+    ';'         { TokenSemiCol _ }
+    ','         { TokenComma _ }
+    '('         { TokenLRoundB _ }
+    ')'         { TokenRRoundB _ }
+    '{'         { TokenLCurlyB _ }
+    '}'         { TokenRCurlyB _ }
+    '['         { TokenLSquareB _ }
+    ']'         { TokenRSquareB _ }
+    var         { TokenVar _ $$ }
+    ReadStream  { TokenReadStream _ }
 
 %nonassoc if
 %nonassoc else
 %nonassoc while
 %nonassoc int var true false
-%nonassoc '(' ')' '{' '}'
+%nonassoc '(' ')' '{' '}' '[' ']'
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||'
 %left '+' '-'
 %left '*' '/' '%'
@@ -57,7 +61,9 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
     | var '=' false ';'                                            { TypeAssignment $1 TypeBool }
     | var '=' true ';'                                             { TypeAssignment $1 TypeBool }
-    | var '=' Type ';'                                             { TypeAssignment $1 $3 } 
+    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
+    | var '[' ']' '=' ReadStream ';'                                    { StreamAssignment $1 $5 }
+    | var '[' int ']' '=' MathExp ';'                              { IndexAssignment $1 $3 $6 }
     | Exp Exp %prec APP                                            { App $1 $2 }
    
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
@@ -79,8 +85,12 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
         | MathExp '%' MathExp                                      { Mod $1 $3 }
         | '-' MathExp %prec NEG                                    { Negate $2 }
         | '(' Exp ')'                                              { $2 }
+        | var '[' int ']'                                          { IndexOf $1 $3 }
         | int                                                      { LanInt $1 }
         | var                                                      { LanVar $1 }
+
+ReadStream : int                   { SingleList $1 }
+           | int ',' ReadStream    { MultipleList $1 $3 } 
 
 Type : Bool { TypeBool }
      | Int { TypeInt }
@@ -115,8 +125,12 @@ data Exp = App Exp Exp
          | IfStmt Exp Exp
          | IfElseStmt Exp Exp Exp
          | WhileExp Exp Exp
+         | StreamAssignment String ReadStream
+         | IndexAssignment String Int Exp
     deriving (Show, Eq)
 
+data ReadStream = SingleList Int | MultipleList Int ReadStream
+    deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool 
       deriving (Show, Eq)
