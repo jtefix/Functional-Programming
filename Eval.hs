@@ -21,6 +21,7 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | HWhile Exp Exp Environment
            | WhileStmt Exp Exp Environment
            | HApp Exp 
+           | Neg
 
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation)
@@ -53,7 +54,8 @@ eval1 ((LanVar x),env,k) = (e',env',k)
 eval1 (v,env,[]) | isTerminated v = (v,env,[])
 
 -- Evaluation for negate operator
-eval1 ((Negate e), env, k) = (LanTrue, env, k)
+eval1 ((Negate e), env, k) = ( e , env, (Neg):k)
+eval1 ((LanInt n), env, (Neg) : k) = (LanInt (-n), env, k)
 
 -- Evaluation rules for plus operator
 eval1 ((Plus e1 e2),env,k) = (e1,env,(HPlus e2 env):k)
