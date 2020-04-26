@@ -34,12 +34,16 @@ tokens :-
     true             { tok ( \p s -> TokenTrue p) }
     false            { tok ( \p s -> TokenFalse p) }
     \;               { tok ( \p s -> TokenSemiCol p) }
+    \,               { tok ( \p s -> TokenComma p)}
     \(               { tok ( \p s -> TokenLRoundB p) }
     \)               { tok ( \p s -> TokenRRoundB p) }
     \{               { tok ( \p s -> TokenLCurlyB p) }
     \}               { tok ( \p s -> TokenRCurlyB p) }
-    $alpha [$alpha $digit \_ \']* { tok (\p s -> TokenVar p s) }
-
+    \[               { tok ( \p s -> TokenLSquareB p) }
+    \]               { tok ( \p s -> TokenRSquareB p) }
+    ReadStream       { tok ( \p s -> TokenReadStream p) }
+    $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenVar p s) }
+   
 {
 
 --helper function
@@ -68,12 +72,16 @@ data Token =
     TokenWhile AlexPosn             |
     TokenTrue AlexPosn              |
     TokenFalse AlexPosn             |
-    TokenSemiCol AlexPosn           | 
+    TokenSemiCol AlexPosn           |
+    TokenComma AlexPosn               | 
     TokenLRoundB AlexPosn           |
     TokenRRoundB AlexPosn           |
     TokenLCurlyB AlexPosn           |
     TokenRCurlyB AlexPosn           |
-    TokenVar AlexPosn String
+    TokenLSquareB AlexPosn          |
+    TokenRSquareB AlexPosn          |
+    TokenVar AlexPosn String        |
+    TokenReadStream AlexPosn
     deriving (Eq, Show)
 
 tokenPosn :: Token -> String
@@ -100,9 +108,13 @@ tokenPosn (TokenWhile (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenTrue (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenFalse (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenSemiCol (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenComma (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLRoundB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRRoundB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenLCurlyB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRCurlyB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenLSquareB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenRSquareB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenReadStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 }
