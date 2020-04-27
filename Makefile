@@ -13,7 +13,7 @@ DEPEND += Tokens.hs Grammar.hs TypeCheck.hs Eval.hs
 #  after building everything that it depends on
 all: $(DEPEND) Main
 
-# Build an executable for SPL interpreter
+# Build an executable for interpreter
 Main: $(DEPEND) Main.hs
 	ghc Main.hs --make -o myinterpreter
 

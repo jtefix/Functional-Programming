@@ -21,6 +21,7 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | HWhile Exp Exp Environment
            | WhileStmt Exp Exp Environment
            | HApp Exp 
+           | HIndexAssignment String Exp
            | Neg
 
 type Kontinuation = [ Frame ]
@@ -43,6 +44,9 @@ isTerminated :: Exp -> Bool
 isTerminated (LanInt _ ) = True
 isTerminated LanTrue = True
 isTerminated LanFalse = True
+isTerminated (SingleList _) = True
+isTerminated (MultipleList _ _) = True
+isTerminated EmptyList = True
 isTerminated _ = False
 
 --Small step evaluation function
@@ -145,6 +149,18 @@ eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k) = (e3, env2, k)
 eval1 ((Assignment str e), env, k) = (e, env, (HAssignment str env):k)
 eval1 (v, env1, (HAssignment str env2):k) | isTerminated v = (v, update env2 [] str v, k)
 
+
+-- Evaluation for IndexOf
+eval1 ((IndexOf str (LanInt x)), env, k) = (LanInt value, env, k)
+    where value = getValueAtIndex x exp
+          (exp, env1) = getValueBinding str env
+
+
+eval1 ((IndexAssignment str index exp), env, k) = (exp, env, (HIndexAssignment str index):k)
+eval1 ( v , env, (HIndexAssignment str (LanInt x):k)) | isTerminated v = ( v, update env [] str exp, k)
+                                    where exp = changeValueAtIndex x list v
+                                          (list, env1) = getValueBinding str env    
+    
 -- Evaluation for type assignment
 eval1 ((TypeAssignment str t), env, k) = (LanTrue, env, k)
 
@@ -180,3 +196,17 @@ listToExp :: [Int] -> Exp
 listToExp [] = EmptyList
 listToExp (x:[]) = SingleList (LanInt x)
 listToExp (x:xs) = MultipleList (LanInt x) $ listToExp xs 
+
+getValueAtIndex :: Int -> Exp -> Int
+getValueAtIndex x _ | x < 1 = error "Out of bounds"
+getValueAtIndex 1 ( SingleList (LanInt x)) = x
+getValueAtIndex 1 ( MultipleList (LanInt x) e) = x
+getValueAtIndex x ( SingleList e) = error "Out of bounds"
+getValueAtIndex x ( MultipleList e1 e2) = getValueAtIndex (x-1) e2
+
+changeValueAtIndex :: Int -> Exp -> Exp -> Exp
+changeValueAtIndex x _ _ | x < 1 = error "Out of bounds"
+changeValueAtIndex 1 (SingleList x) value = (SingleList value)
+changeValueAtIndex 1 (MultipleList e1 e2) value = (MultipleList value e2)
+changeValueAtIndex x (SingleList e) value = error "Out of bounds"
+changeValueAtIndex x (MultipleList e1 e2) value = MultipleList e1 (changeValueAtIndex (x-1) e2 value) 

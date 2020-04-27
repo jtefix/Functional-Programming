@@ -101,7 +101,7 @@ Type : Bool                                                        { TypeBool }
     
 TypeList : '[' Int ']'                                             { TypeList }
 
-EmptyList : '['']'                                                { EmptyList }
+EmptyList : '['']'                                                 { EmptyList }
 
 {
 -- error function
