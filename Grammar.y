@@ -59,8 +59,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'             { IfElseStmt $3 $6 $10 }
     | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
-    | var '=' false ';'                                            { TypeAssignment $1 TypeBool }
-    | var '=' true ';'                                             { TypeAssignment $1 TypeBool }
+    | var '=' BoolValues ';'                                       { Assignment $1 $3 }
     | var '=' Type ';'                                             { TypeAssignment $1 $3 }
     | var '[' ']' '=' TypeList ';'                                 { TypeAssignment $1 $5 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
@@ -78,8 +77,10 @@ ShortExp : MathExp '<' MathExp                                     { LessThan $1
          | ShortExp '&&' ShortExp                                  { And $1 $3 }
          | ShortExp '||' ShortExp                                  { Or $1 $3 }
          | '(' ShortExp ')'                                        { $2 }
-         | true                                                    { LanTrue }
-         | false                                                   { LanFalse }
+         | BoolValues                                              { $1 }
+
+BoolValues : true                                                  { LanTrue }
+           | false                                                 { LanFalse }
 
 MathExp : MathExp '+' MathExp                                      { Plus $1 $3 }
         | MathExp '-' MathExp                                      { Minus $1 $3 }

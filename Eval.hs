@@ -149,12 +149,10 @@ eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k) = (e3, env2, k)
 eval1 ((Assignment str e), env, k) = (e, env, (HAssignment str env):k)
 eval1 (v, env1, (HAssignment str env2):k) | isTerminated v = (v, update env2 [] str v, k)
 
-
 -- Evaluation for IndexOf
 eval1 ((IndexOf str (LanInt x)), env, k) = (LanInt value, env, k)
     where value = getValueAtIndex x exp
           (exp, env1) = getValueBinding str env
-
 
 eval1 ((IndexAssignment str index exp), env, k) = (exp, env, (HIndexAssignment str index):k)
 eval1 ( v , env, (HIndexAssignment str (LanInt x):k)) | isTerminated v = ( v, update env [] str exp, k)
