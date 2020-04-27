@@ -177,5 +177,6 @@ unparse (LanFalse) = "false"
 unparse _ = "Unknown"
 
 listToExp :: [Int] -> Exp 
+listToExp [] = EmptyList
 listToExp (x:[]) = SingleList (LanInt x)
 listToExp (x:xs) = MultipleList (LanInt x) $ listToExp xs 

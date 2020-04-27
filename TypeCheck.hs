@@ -70,6 +70,8 @@ checker e (LanVar x) = getBinding x e
 checker e (LanTrue) = TypeBool
 checker e (LanFalse) = TypeBool
 
+-- emptyList
+checker e (EmptyList) = TypeList
 -- singleList
 checker e (SingleList e1) | checker e e1 == TypeInt = TypeList
 -- multilist

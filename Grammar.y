@@ -65,6 +65,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '[' ']' '=' TypeList ';'                                 { TypeAssignment $1 $5 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
     | var '[' ']' '=' '[' list ']' ';'                             { Assignment $1 $6 }
+    | var '[' ']' '=' EmptyList ';'                                { Assignment $1 $5 }
     | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
     | Exp Exp %prec APP                                            { App $1 $2 }
    
@@ -99,6 +100,8 @@ Type : Bool                                                        { TypeBool }
      | TypeList                                                    { $1 }
     
 TypeList : '[' Int ']'                                             { TypeList }
+
+EmptyList : '['']'                                                { EmptyList }
 
 {
 -- error function
@@ -135,6 +138,7 @@ data Exp = App Exp Exp
          | IndexOf String Exp
          | SingleList Exp
          | MultipleList Exp Exp
+         | EmptyList
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList
