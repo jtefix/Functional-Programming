@@ -62,7 +62,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '=' false ';'                                            { TypeAssignment $1 TypeBool }
     | var '=' true ';'                                             { TypeAssignment $1 TypeBool }
     | var '=' Type ';'                                             { TypeAssignment $1 $3 }
-    | var '[' ']' '=' Type ';'                                     { TypeAssignment $1 $5 }
+    | var '[' ']' '=' TypeList ';'                                 { TypeAssignment $1 $5 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
     | var '[' ']' '=' '[' list ']' ';'                             { Assignment $1 $6 }
     | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
@@ -96,7 +96,9 @@ list : MathExp                                                     { SingleList 
 
 Type : Bool                                                        { TypeBool }
      | Int                                                         { TypeInt }
-     | '[' Int ']'                                                 { TypeList }
+     | TypeList                                                    { $1 }
+    
+TypeList : '[' Int ']'                                             { TypeList }
 
 {
 -- error function
