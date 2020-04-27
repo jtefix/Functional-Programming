@@ -62,8 +62,10 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '=' false ';'                                            { TypeAssignment $1 TypeBool }
     | var '=' true ';'                                             { TypeAssignment $1 TypeBool }
     | var '=' Type ';'                                             { TypeAssignment $1 $3 }
-    | var '[' ']' '=' ReadStream ';'                                    { StreamAssignment $1 $5 }
-    | var '[' int ']' '=' MathExp ';'                              { IndexAssignment $1 $3 $6 }
+    | var '[' ']' '=' Type ';'                                     { TypeAssignment $1 $5 }
+    | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
+    | var '[' ']' '=' '[' list ']' ';'                             { Assignment $1 $6 }
+    | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
     | Exp Exp %prec APP                                            { App $1 $2 }
    
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
@@ -85,15 +87,16 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
         | MathExp '%' MathExp                                      { Mod $1 $3 }
         | '-' MathExp %prec NEG                                    { Negate $2 }
         | '(' Exp ')'                                              { $2 }
-        | var '[' int ']'                                          { IndexOf $1 $3 }
+        | var '[' MathExp ']'                                      { IndexOf $1 $3 }
         | int                                                      { LanInt $1 }
         | var                                                      { LanVar $1 }
 
-ReadStream : int                   { SingleList $1 }
-           | int ',' ReadStream    { MultipleList $1 $3 } 
+list : MathExp                                                     { SingleList $1 }
+     | MathExp ',' list                                            { MultipleList $1 $3 }
 
-Type : Bool { TypeBool }
-     | Int { TypeInt }
+Type : Bool                                                        { TypeBool }
+     | Int                                                         { TypeInt }
+     | '[' Int ']'                                                 { TypeList }
 
 {
 -- error function
@@ -125,14 +128,14 @@ data Exp = App Exp Exp
          | IfStmt Exp Exp
          | IfElseStmt Exp Exp Exp
          | WhileExp Exp Exp
-         | StreamAssignment String ReadStream
-         | IndexAssignment String Int Exp
+         | StreamRead String
+         | IndexAssignment String Exp Exp
+         | IndexOf String Exp
+         | SingleList Exp
+         | MultipleList Exp Exp
     deriving (Show, Eq)
 
-data ReadStream = SingleList Int | MultipleList Int ReadStream
-    deriving (Show, Eq)
-
-data Type = TypeInt | TypeBool 
+data Type = TypeInt | TypeBool | TypeList
       deriving (Show, Eq)
 
 type Environment = [ (String,Exp) ]  

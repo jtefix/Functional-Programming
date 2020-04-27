@@ -70,6 +70,20 @@ checker e (LanVar x) = getBinding x e
 checker e (LanTrue) = TypeBool
 checker e (LanFalse) = TypeBool
 
+-- singleList
+checker e (SingleList e1) | checker e e1 == TypeInt = TypeList
+-- multilist
+checker e (MultipleList e1 e2) | checker e e1 == TypeInt = checker e e2
+-- checker StreamRead
+checker e (StreamRead str) | isBinded str e == False = error "List has not been declared"
+                           | otherwise = TypeList
+-- checker IndexOf
+checker e (IndexOf str e1) | isBinded str e == False = error "List has not been declared"
+                           | (checker e e1) == TypeInt = checker e e1
+-- streamAssignment 
+checker e (IndexAssignment str index e1) | isBinded str e == False = error "List has not been declared"
+                                         | (checker e e1) == (checker e index) = checker e e1
+
 -- plus
 checker e (Plus e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
 -- minus
@@ -119,7 +133,7 @@ checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
                            | otherwise = error "Type error in while"
 
 -- App
-checker e (App e1 e2 ) | checker e e1 == TypeInt || checker e e1 == TypeBool = checker (updateEnv e e1) e2
+checker e (App e1 e2 ) = checker (updateEnv e e1) e2
 
 -- error
 checker e _ = error "Type Error"
@@ -128,3 +142,4 @@ checker e _ = error "Type Error"
 printType :: Type -> String
 printType TypeBool = "Bool"
 printType TypeInt = "Int"
+printType TypeList = "List"
