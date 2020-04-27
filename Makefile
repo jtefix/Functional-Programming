@@ -1,25 +1,21 @@
-# 
+#
 # Rules for compiling and linking the typechecker/evaluator
 #
 # Type
 #   make         to rebuild the executable files
 #   make clean   to remove all intermediate and temporary files
-#   
+#
 
 # Files that need to be generated from other files
 DEPEND += Tokens.hs Grammar.hs TypeCheck.hs Eval.hs
 
-# When "make" is invoked with no arguments, we build an executable 
+# When "make" is invoked with no arguments, we build an executable
 #  after building everything that it depends on
-all: $(DEPEND) Lani Eval
+all: $(DEPEND) Main
 
-# Build an executable for Toy interpreter
-Eval: $(DEPEND) Eval.hs
-	ghc Eval.hs
-
-# Build an executable for interactive mode
-Lani: $(DEPEND) Lani.hs
-	ghc Lani.hs
+# Build an executable for SPL interpreter
+Main: $(DEPEND) Main.hs
+	ghc Main.hs --make -o myinterpreter
 
 # Generate ML files from a parser definition file
 Grammar.hs : Grammar.y
@@ -35,6 +31,4 @@ Tokens.hs : Tokens.x
 
 # Clean up the directory
 clean::
-	rm -rf Tokens.hs Grammar.hs *.hi *.o *.info
-
-
+	rm -rf myinterpreter Tokens.hs Grammar.hs *.hi *.o *.info
