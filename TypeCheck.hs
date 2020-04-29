@@ -117,6 +117,9 @@ checker e (And e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = T
 -- or
 checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = TypeBool
 
+-- sizeOf
+checker e (SizeOf str) | isBinded str e == False = error "List has not been declared"
+                       | otherwise = TypeInt
 -- type assignment 
 checker e (TypeAssignment str t) | isBinded str e == False = checker (addBinding str t e) (TypeAssignment str t)
                                  | otherwise = t

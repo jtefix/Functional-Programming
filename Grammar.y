@@ -41,6 +41,7 @@ import Tokens
     ']'         { TokenRSquareB _ }
     var         { TokenVar _ $$ }
     ReadStream  { TokenReadStream _ }
+    sizeOf      { TokenSizeOf _ }
 
 %nonassoc if
 %nonassoc else
@@ -92,6 +93,8 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
         | var '[' MathExp ']'                                      { IndexOf $1 $3 }
         | int                                                      { LanInt $1 }
         | var                                                      { LanVar $1 }
+        | sizeOf '(' var '[' ']' ')'                               { SizeOf $3 }
+  
 
 list : MathExp                                                     { SingleList $1 }
      | MathExp ',' list                                            { MultipleList $1 $3 }
@@ -140,6 +143,7 @@ data Exp = App Exp Exp
          | SingleList Exp
          | MultipleList Exp Exp
          | EmptyList
+         | SizeOf String
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList

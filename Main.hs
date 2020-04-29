@@ -27,7 +27,7 @@ main' = do
     let s1 = map (splitOn ' ') input
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2
-    let result = evalLoop (string)
+    let result = evalLoop (string) s3
     putStrLn (show s3)
     putStrLn ("Evaluates to " ++ (unparse result) ++ "\n")
 
