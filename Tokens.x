@@ -43,7 +43,7 @@ tokens :-
     \]               { tok ( \p s -> TokenRSquareB p) }
     ReadStream       { tok ( \p s -> TokenReadStream p) }
     sizeOf           { tok ( \p s -> TokenSizeOf p) }
-    outputValue      { tok ( \p s -> TokenOutput p) }
+    output           { tok ( \p s -> TokenOutput p) }
     $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenVar p s) }
    
 {

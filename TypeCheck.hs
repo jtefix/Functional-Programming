@@ -53,6 +53,8 @@ updateEnv e (LanInt x) = e
 updateEnv e (LanVar x) = e
 updateEnv e (LanTrue) = e
 updateEnv e (LanFalse) = e
+updateEnv e (EmptyList) = e
+
 -- Multiple Expressions
 updateEnv e (App e1 e2) = updateEnv (updateEnv e e1) e2
 -- Type Assignment
@@ -120,6 +122,9 @@ checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = Ty
 -- sizeOf
 checker e (SizeOf str) | isBinded str e == False = error "List has not been declared"
                        | otherwise = TypeInt
+
+checker e (Output exp) = TypeInt
+
 -- type assignment 
 checker e (TypeAssignment str t) | isBinded str e == False = checker (addBinding str t e) (TypeAssignment str t)
                                  | otherwise = t

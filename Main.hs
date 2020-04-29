@@ -15,9 +15,9 @@ main :: IO ()
 main = catch main' noParse
 
 main' = do 
-    (file1 : _) <- getArgs
+    (file1 : file2 : _) <- getArgs
     problem <- readFile file1
-    input <- fmap lines getContents
+    input <- fmap lines (readFile file2)
     putStrLn ("Text to be parsed: " ++ problem)
     let string = parseCalc (alexScanTokens problem)
     putStrLn ("Parsed text: " ++ show string)
@@ -27,10 +27,9 @@ main' = do
     let s1 = map (splitOn ' ') input
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2
-    let result = evalLoop (string) s3
-    putStrLn (show s3)
-    putStrLn ("Evaluates to " ++ (unparse result) ++ "\n")
-
+    let result = evalLoop string s3
+    putStr result
+    
 
 noParse :: ErrorCall -> IO ()
 noParse e = do
@@ -50,12 +49,3 @@ splitOn c ls = (takeWhile (/=c) ls) : splitOn' c (dropWhile (/=c) ls)
        splitOn' c (x:[]) | x==c = [[]]
        splitOn' c (x:xs) | x==c = splitOn c xs
                          | otherwise = []
-
--- main = do 
---     (file : _) <- getArgs
---     contents <- fmap lines (readFile file)
---     let s1 = map (splitOn ' ') contents
---     let s2 = map (map read) s1 :: [[Int]]
---     let s3 = multiZip s2
---     putStrLn (show s3)
-  --  print $ splitOn "\n" contents

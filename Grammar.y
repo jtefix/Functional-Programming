@@ -42,12 +42,12 @@ import Tokens
     var         { TokenVar _ $$ }
     ReadStream  { TokenReadStream _ }
     sizeOf      { TokenSizeOf _ }
-    ouput       { TokenOutput _ }
+    output       { TokenOutput _ }
 
 %nonassoc if
 %nonassoc else
 %nonassoc while
-%nonassoc int var true false
+%nonassoc int var true false output
 %nonassoc '(' ')' '{' '}' '[' ']'
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||'
 %left '+' '-'
@@ -69,7 +69,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '[' ']' '=' EmptyList ';'                                { Assignment $1 $5 }
     | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
     | Exp Exp %prec APP                                            { App $1 $2 }
-    | output '(' var '['']' ')' ';'                                { Output $1 }
+    | output '(' MathExp ')' ';'                                       { Output $3 }
    
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
@@ -146,7 +146,7 @@ data Exp = App Exp Exp
          | MultipleList Exp Exp
          | EmptyList
          | SizeOf String
-         | Output String
+         | Output Exp
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList
