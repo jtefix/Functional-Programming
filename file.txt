@@ -1,13 +1,14 @@
 x[] = [Int];
 y[] = [Int];
+n = Int;
+
 x[] = ReadStream;
 y[] = ReadStream;
-n = Int;
 n = 1;
 
 while ( n * 2 <= sizeOf(x[])) {
-output(x[n*2-1]);
-output(x[n*2]);
-output(y[n]);
-n = n + 1;
+	output(x[n*2-1]);
+	output(x[n*2]);
+	output(y[n]);
+	n = n + 1;
 }  

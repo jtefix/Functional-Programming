@@ -23,7 +23,7 @@ main' = do
     putStrLn ("Parsed text: " ++ show string)
     let typeOf = checker [] string
     putStrLn ("typeCheck: " ++ show typeOf) 
-    putStrLn ("Type Checking Passed with type " ++ (printType typeOf) ++ "\n") 
+    putStrLn ("Type Checking Passed with type " ++ (printType typeOf)) 
     let s1 = map (splitOn ' ') input
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2

@@ -177,8 +177,10 @@ eval1 ((TypeAssignment str t), env, k, xs, output) = (LanTrue, env, k, xs, outpu
 
 -- Evaluation for Output
 eval1 ((Output e), env, k, xs, output) = (e, env, (HOutput e env):k, xs, output)
-eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e = (LanTrue, env , k, xs, output')
+eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e && output /= "" = (LanTrue, env , k, xs, output')
+                                                 | isTerminated e = (LanTrue, env , k, xs, output'')
                                 where output' = output ++ "\n" ++  unparse e 
+                                      output'' = unparse e
 
 -- Evaluation for APP
 eval1 ((App e1 e2), env, k, xs, output) = (e1 , env , (HApp e2) : k, xs, output)
