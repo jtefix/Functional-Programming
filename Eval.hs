@@ -149,16 +149,26 @@ eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k, xs) = (e3, env2, k, xs)
 eval1 ((Assignment str e), env, k, xs) = (e, env, (HAssignment str env):k, xs)
 eval1 (v, env1, (HAssignment str env2):k, xs) | isTerminated v = (v, update env2 [] str v, k, xs)
 
+-- Evaluation for SizeOf
+eval1 ((SizeOf str), env, k, xs) = ((LanInt x), env1, k, xs)
+              where (exp, env1) = getValueBinding str env
+                    x = sizeList exp 
+  
 -- Evaluation for IndexOf
 eval1 ((IndexOf str (LanInt x)), env, k, xs) = (LanInt value, env, k, xs)
     where value = getValueAtIndex x exp
           (exp, env1) = getValueBinding str env
 
+-- Evaluation for IndexAssignment
 eval1 ((IndexAssignment str index exp), env, k, xs) = (exp, env, (HIndexAssignment str index):k, xs)
 eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs) | isTerminated v = ( v, update env [] str exp, k, xs)
                                     where exp = changeValueAtIndex x list v
                                           (list, env1) = getValueBinding str env    
     
+-- Evaluation for StreamRead 
+eval1 ((StreamRead str), env, k, (x:xs)) = (Assignment str (listToExp x), env, k, xs)
+eval1 ((StreamRead str), env, k, [] ) = (Assignment str EmptyList, env,k,[]);
+
 -- Evaluation for type assignment
 eval1 ((TypeAssignment str t), env, k, xs) = (LanTrue, env, k, xs)
 
@@ -175,25 +185,30 @@ eval1 ( _ , env1, (WhileStmt e1 e2 env):k, xs) = (e1, env1, (HWhile e1 e2 env1):
 eval1 _ = error "BAG PULA DC NU STIU"
 
 -- Function to iterate the small step reduction to termination
-evalLoop :: Exp -> Exp -- GO BACK HEREEEE
-evalLoop e = evalLoop' (e,[],[])
-  where evalLoop' (e,env,k) = if (e' == e) && (isTerminated e') && (null k) then e' else evalLoop' (e',env',k')
-                       where (e',env',k', []) = eval1 (e,env,k, []) 
-
--- evalWhile :: State -> 
--- evalWhile ((While e1 e2), env, k) | evalLoop e1 == LanTrue = evalWhile ((While e1 e2), env, k)
+evalLoop :: Exp -> [[Int]] -> Exp -- GO BACK HEREEEE
+evalLoop e xs = evalLoop' (e,[],[], xs)
+  where evalLoop' (e,env,k,xs) = if (e' == e) && (isTerminated e') && (null k) then e' else evalLoop' (e',env',k',xs')
+                       where (e',env',k', xs') = eval1 (e,env,k, xs) 
 
 -- Function to unparse underlying values from the AST term
 unparse :: Exp -> String 
 unparse (LanInt n) = show n
 unparse (LanTrue) = "true"
 unparse (LanFalse) = "false"
+unparse EmptyList = show "[]"
+unparse (SingleList e) = show $ expToList e
+unparse e@(MultipleList e1 e2)  = show $ expToList e
 unparse _ = "Unknown"
 
 listToExp :: [Int] -> Exp 
 listToExp [] = EmptyList
 listToExp (x:[]) = SingleList (LanInt x)
 listToExp (x:xs) = MultipleList (LanInt x) $ listToExp xs 
+
+expToList :: Exp -> [Int]
+expToList EmptyList = []
+expToList (SingleList (LanInt x)) = [x]
+expToList (MultipleList (LanInt x) e2) = x: expToList (e2)
 
 getValueAtIndex :: Int -> Exp -> Int
 getValueAtIndex x _ | x < 1 = error "Out of bounds"
@@ -208,3 +223,8 @@ changeValueAtIndex 1 (SingleList x) value = (SingleList value)
 changeValueAtIndex 1 (MultipleList e1 e2) value = (MultipleList value e2)
 changeValueAtIndex x (SingleList e) value = error "Out of bounds"
 changeValueAtIndex x (MultipleList e1 e2) value = MultipleList e1 (changeValueAtIndex (x-1) e2 value) 
+
+sizeList :: Exp -> Int
+sizeList (EmptyList) = 0
+sizeList (SingleList x) = 1
+sizeList (MultipleList e1 e2) = 1 + sizeList e2

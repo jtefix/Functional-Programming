@@ -15,9 +15,9 @@ main :: IO ()
 main = catch main' noParse
 
 main' = do 
-    (file1 : file2 : _) <- getArgs
+    (file1 : _) <- getArgs
     problem <- readFile file1
-    input <- fmap lines (readFile file2)
+    input <- fmap lines getContents
     putStrLn ("Text to be parsed: " ++ problem)
     let string = parseCalc (alexScanTokens problem)
     putStrLn ("Parsed text: " ++ show string)
