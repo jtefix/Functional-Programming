@@ -1,3 +1,10 @@
-while(x>10){
-    x++;
+x[] = [Int];
+x[] = ReadStream;
+y = Int;
+y = 0;
+while ( sizeOf(x[]) > 0 ) {
+y = y + x[1];
+x[] = ReadStream;
 }
+y = y + 0;
+
