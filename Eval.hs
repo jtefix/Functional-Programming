@@ -29,10 +29,10 @@ data Frame = PlusH Exp | HPlus Exp Environment
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation, [[Int]], String)
 
-getValueBinding :: String -> Environment -> (Exp, Environment)
-getValueBinding x [] = error "Variable binding not found"
-getValueBinding x ((y,e):env) | x == y = (e,(y,e):env)
-                              | otherwise = getValueBinding x env
+getValueBinding :: String -> Environment -> Environment -> (Exp, Environment)
+getValueBinding x [] _ = error "Variable binding not found"
+getValueBinding x ((y,e):env) env2 | x == y = (e,(y,e):env ++ env2)
+                                   | otherwise = getValueBinding x env ((y,e):env2)
 
 -- updateEnvironment :: String -> Exp -> Environment -> Environment
 -- updateEnvironment str t env = [(str, t)] ++ env
@@ -54,7 +54,7 @@ isTerminated _ = False
 --Small step evaluation function
 eval1 :: State -> State
 eval1 ((LanVar x), env, k, xs, output) = (e', env', k, xs, output) 
-                    where (e',env') = getValueBinding x env
+                    where (e',env') = getValueBinding x env []
                   
 -- Rule for terminated evaluations
 eval1 (v,env,[], xs, output) | isTerminated v = (v,env,[], xs, output)
@@ -153,20 +153,20 @@ eval1 (v, env1, (HAssignment str env2):k, xs, output) | isTerminated v = (v, upd
 
 -- Evaluation for SizeOf
 eval1 ((SizeOf str), env, k, xs, output) = ((LanInt x), env1, k, xs, output)
-              where (exp, env1) = getValueBinding str env
+              where (exp, env1) = getValueBinding str env []
                     x = sizeList exp 
   
 -- Evaluation for IndexOf
 eval1 ((IndexOf str e), env, k, xs, output) = (e, env, (HIndexOf str env):k, xs, output)
-eval1 ((LanInt x), env, (HIndexOf str env2) : k, xs, output) = (LanInt value, env, k, xs, output)
+eval1 ((LanInt x), env, (HIndexOf str env2) : k, xs, output) = (LanInt value, env1, k, xs, output)
                                       where value = getValueAtIndex x exp
-                                            (exp, env1) = getValueBinding str env
+                                            (exp, env1) = getValueBinding str env []
 
 -- Evaluation for IndexAssignment
 eval1 ((IndexAssignment str index exp), env, k, xs, output) = (exp, env, (HIndexAssignment str index):k, xs, output)
 eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs, output) | isTerminated v = ( v, update env [] str exp, k, xs, output)
                                     where exp = changeValueAtIndex x list v
-                                          (list, env1) = getValueBinding str env    
+                                          (list, env1) = getValueBinding str env []
     
 -- Evaluation for StreamRead 
 eval1 ((StreamRead str), env, k, (x:xs), output) = (Assignment str (listToExp x), env, k, xs, output)
@@ -179,8 +179,8 @@ eval1 ((TypeAssignment str t), env, k, xs, output) = (LanTrue, env, k, xs, outpu
 eval1 ((Output e), env, k, xs, output) = (e, env, (HOutput e env):k, xs, output)
 eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e && output /= "" = (LanTrue, env , k, xs, output')
                                                  | isTerminated e = (LanTrue, env , k, xs, output'')
-                                where output' = output ++ "\n" ++  unparse e 
-                                      output'' = unparse e
+                                where output' = output ++ "\n" ++  unparse e env1
+                                      output'' = unparse e env1
 
 -- Evaluation for APP
 eval1 ((App e1 e2), env, k, xs, output) = (e1 , env , (HApp e2) : k, xs, output)
@@ -201,14 +201,16 @@ evalLoop e xs = evalLoop' (e,[],[], xs, "")
                        where (e',env',k', xs',output') = eval1 (e,env,k, xs, output) 
 
 -- Function to unparse underlying values from the AST term
-unparse :: Exp -> String 
-unparse (LanInt n) = show n
-unparse (LanTrue) = "true"
-unparse (LanFalse) = "false"
-unparse EmptyList = show "[]"
-unparse (SingleList e) = show $ expToList e
-unparse e@(MultipleList e1 e2)  = show $ expToList e
-unparse _ = "Unknown"
+unparse :: Exp -> Environment -> String 
+unparse (LanInt n) e = show n
+unparse (LanTrue) e = "true"
+unparse (LanFalse) e = "false"   
+unparse (LanVar x) e = unparse value e
+              where (value, e2) =  getValueBinding x e []
+unparse EmptyList e = "[]"
+unparse (SingleList e1) e = show $ expToList e1
+unparse e3@(MultipleList e1 e2) e = show $ expToList e3
+unparse _ _ = "Unknown"
 
 listToExp :: [Int] -> Exp 
 listToExp [] = EmptyList

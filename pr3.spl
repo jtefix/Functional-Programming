@@ -1,0 +1,14 @@
+a[] = [Int];
+b[] = [Int];
+a[] = ReadStream;
+b[] = ReadStream;
+
+n = Int;
+n = 1;
+output(0);
+
+while ( n * 2 <= sizeOf(b[])) {
+output(b[n*2]);
+output(a[n]);
+n = n + 1;
+}

@@ -1,0 +1,14 @@
+a[] = [Int];
+a[] = ReadStream;
+
+s = Int;
+n = Int;
+n = 1;
+s = 0;
+
+while ( n <= sizeOf(a[])) {
+s = s + a[n];
+n = n + 1;
+output(s);
+}
+

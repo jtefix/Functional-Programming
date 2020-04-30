@@ -1,0 +1,19 @@
+a[] = [Int];
+b[] = [Int];
+c[] = [Int];
+
+a[] = ReadStream;
+b[] = ReadStream;
+c[] = ReadStream;
+
+n = Int;
+n = 1;
+
+while(n <= sizeOf(a[])) {
+output(c[n]);
+output(b[n]);
+output(a[n]);
+output(a[n] + b[n]);
+output(b[n] + c[n]);
+n = n + 1;
+}
