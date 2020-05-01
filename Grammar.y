@@ -16,6 +16,7 @@ import Tokens
     '!='        { TokenNotEq _ }
     '+'         { TokenPlus _ }
     '-'         { TokenMinus _ }
+    '--'        { TokenMinusOne _ }
     '*'         { TokenMult _ }
     '/'         { TokenDiv _ }
     '%'         { TokenMod _ }
@@ -44,15 +45,16 @@ import Tokens
     sizeOf      { TokenSizeOf _ }
     output       { TokenOutput _ }
 
-%nonassoc if
+%nonassoc if 
 %nonassoc else
 %nonassoc while
-%nonassoc int var true false output
+%nonassoc int var true false output 
 %nonassoc '(' ')' '{' '}' '[' ']'
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||'
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
+%nonassoc 
 %left NEG
 %right APP
 %%
@@ -69,8 +71,10 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '[' ']' '=' EmptyList ';'                                { Assignment $1 $5 }
     | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
     | Exp Exp %prec APP                                            { App $1 $2 }
-    | output '(' MathExp ')' ';'                                       { Output $3 }
-   
+    | output '(' MathExp ')' ';'                                   { Output $3 }
+    | var '+''+' ';'                                               { AddOne $1 }
+    | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }
+
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
          | MathExp '>' MathExp                                     { BiggerThan $1 $3 }
@@ -147,6 +151,8 @@ data Exp = App Exp Exp
          | EmptyList
          | SizeOf String
          | Output Exp
+         | AddOne String
+         | AddOneIndexOf String Exp
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList

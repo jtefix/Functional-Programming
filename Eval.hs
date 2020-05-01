@@ -151,6 +151,9 @@ eval1 ((LanFalse), env1, (HIfElseStmt e2 e3 env2):k, xs, output) = (e3, env2, k,
 eval1 ((Assignment str e), env, k, xs, output) = (e, env, (HAssignment str env):k, xs, output)
 eval1 (v, env1, (HAssignment str env2):k, xs, output) | isTerminated v = (v, update env2 [] str v, k, xs, output)
 
+-- Evaluation for AddOne
+eval1 ((AddOne str), env, k, xs, output) = ((Assignment str (Plus (LanVar str) (LanInt 1))), env, k, xs, output)
+
 -- Evaluation for SizeOf
 eval1 ((SizeOf str), env, k, xs, output) = ((LanInt x), env1, k, xs, output)
               where (exp, env1) = getValueBinding str env []
@@ -167,6 +170,8 @@ eval1 ((IndexAssignment str index exp), env, k, xs, output) = (exp, env, (HIndex
 eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs, output) | isTerminated v = ( v, update env [] str exp, k, xs, output)
                                     where exp = changeValueAtIndex x list v
                                           (list, env1) = getValueBinding str env []
+-- Evaluation for Add one to an Indexed elem
+eval1 ((AddOneIndexOf str e),env,k,xs,output) = ((IndexAssignment str e (Plus (IndexOf str e) (LanInt 1))),env,k,xs,output)
     
 -- Evaluation for StreamRead 
 eval1 ((StreamRead str), env, k, (x:xs), output) = (Assignment str (listToExp x), env, k, xs, output)

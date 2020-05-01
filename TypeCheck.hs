@@ -84,6 +84,9 @@ checker e (StreamRead str) | isBinded str e == False = error "List has not been 
 -- checker IndexOf
 checker e (IndexOf str e1) | isBinded str e == False = error "List has not been declared"
                            | (checker e e1) == TypeInt = checker e e1
+-- checker AddOneIndexOf
+checker e (AddOneIndexOf str e1) | isBinded str e == False = error "List has not been declared"
+                                 | (checker e e1) == TypeInt = checker e e1
 -- streamAssignment 
 checker e (IndexAssignment str index e1) | isBinded str e == False = error "List has not been declared"
                                          | (checker e e1) == (checker e index) = checker e e1
@@ -122,7 +125,7 @@ checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = Ty
 -- sizeOf
 checker e (SizeOf str) | isBinded str e == False = error "List has not been declared"
                        | otherwise = TypeInt
-
+-- output
 checker e (Output exp) = TypeInt
 
 -- type assignment 
@@ -145,6 +148,9 @@ checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
 -- App
 checker e (App e1 e2 ) = checker (updateEnv e e1) e2
 
+checker e (AddOne str) | getBinding str e == TypeInt = TypeInt
+                       | otherwise = error "variable hasn't been declared"
+                       
 -- error
 checker e _ = error "Type Error"
 
