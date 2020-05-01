@@ -25,6 +25,7 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | Neg
            | HOutput Exp Environment
            | HIndexOf String Environment
+           | HIndexAssignment1 String Exp Exp
 
 type Kontinuation = [ Frame ]
 type State = (Exp, Environment, Kontinuation, [[Int]], String)
@@ -166,7 +167,8 @@ eval1 ((LanInt x), env, (HIndexOf str env2) : k, xs, output) = (LanInt value, en
                                             (exp, env1) = getValueBinding str env []
 
 -- Evaluation for IndexAssignment
-eval1 ((IndexAssignment str index exp), env, k, xs, output) = (exp, env, (HIndexAssignment str index):k, xs, output)
+eval1 ((IndexAssignment str index exp), env, k, xs, output) = (index, env, (HIndexAssignment1 str index exp):k, xs, output)
+eval1 (v, env, (HIndexAssignment1 str index exp):k, xs, output ) | isTerminated v = (exp, env, (HIndexAssignment str v):k, xs, output)
 eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs, output) | isTerminated v = ( v, update env [] str exp, k, xs, output)
                                     where exp = changeValueAtIndex x list v
                                           (list, env1) = getValueBinding str env []

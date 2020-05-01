@@ -145,6 +145,9 @@ checker e (IfElseStmt e1 e2 e3) | checker e e1 == TypeBool = checker e e2
 checker e (WhileExp e1 e2) | checker e e1 == TypeBool = checker e e2
                            | otherwise = error "Type error in while"
 
+-- forEach statement
+checker e (ForEach str str1 e1) | getBinding str e == TypeInt && getBinding str1 e == TypeList = checker e e1
+                                | otherwise = error "Type error forEach"
 -- App
 checker e (App e1 e2 ) = checker (updateEnv e e1) e2
 

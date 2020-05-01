@@ -16,7 +16,6 @@ import Tokens
     '!='        { TokenNotEq _ }
     '+'         { TokenPlus _ }
     '-'         { TokenMinus _ }
-    '--'        { TokenMinusOne _ }
     '*'         { TokenMult _ }
     '/'         { TokenDiv _ }
     '%'         { TokenMod _ }
@@ -40,6 +39,8 @@ import Tokens
     '}'         { TokenRCurlyB _ }
     '['         { TokenLSquareB _ }
     ']'         { TokenRSquareB _ }
+    ':'         { TokenColon _ }
+    forEach     { TokenForEach _}
     var         { TokenVar _ $$ }
     ReadStream  { TokenReadStream _ }
     sizeOf      { TokenSizeOf _ }
@@ -48,9 +49,9 @@ import Tokens
 %nonassoc if 
 %nonassoc else
 %nonassoc while
-%nonassoc int var true false output 
-%nonassoc '(' ')' '{' '}' '[' ']'
-%left '<' '<=' '>' '>=' '==' '!=' '&&' '||'
+%nonassoc int var true false output forEach
+%nonassoc '(' ')' '{' '}' '[' ']' ':'
+%left '<' '<=' '>' '>=' '==' '!=' '&&' '||' 
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
@@ -74,6 +75,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | output '(' MathExp ')' ';'                                   { Output $3 }
     | var '+''+' ';'                                               { AddOne $1 }
     | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }
+    | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
 
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
@@ -153,6 +155,7 @@ data Exp = App Exp Exp
          | Output Exp
          | AddOne String
          | AddOneIndexOf String Exp
+         | ForEach String String Exp
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList

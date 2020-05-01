@@ -41,9 +41,11 @@ tokens :-
     \}               { tok ( \p s -> TokenRCurlyB p) }
     \[               { tok ( \p s -> TokenLSquareB p) }
     \]               { tok ( \p s -> TokenRSquareB p) }
+    \:               { tok ( \p s -> TokenColon p) }
     ReadStream       { tok ( \p s -> TokenReadStream p) }
     sizeOf           { tok ( \p s -> TokenSizeOf p) }
     output           { tok ( \p s -> TokenOutput p) }
+    forEach          { tok ( \p s -> TokenForEach p) } 
     $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenVar p s) }
    
 {
@@ -85,6 +87,8 @@ data Token =
     TokenVar AlexPosn String        |
     TokenReadStream AlexPosn        |
     TokenSizeOf AlexPosn            |
+    TokenForEach AlexPosn           |
+    TokenColon AlexPosn             |
     TokenOutput AlexPosn
     deriving (Eq, Show)
 
@@ -121,6 +125,8 @@ tokenPosn (TokenLSquareB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenRSquareB (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenReadStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenSizeOf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenForEach (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenOutput (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 }
