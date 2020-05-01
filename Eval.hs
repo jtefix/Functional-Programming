@@ -188,7 +188,9 @@ eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e && output /= "
                                                  | isTerminated e = (LanTrue, env , k, xs, output'')
                                 where output' = output ++ "\n" ++  unparse e env1
                                       output'' = unparse e env1
-
+-- Evaluation forEach
+eval1 ((ForEach str str1 exp), env, k, xs, output) = (e, env, k, xs, output) 
+            where e = (App (App (TypeAssignment "illegalIdentifier" TypeInt) (Assignment "illegalIdentifier" (LanInt 1))) (WhileExp (LessOrEqThan (LanVar "illegalIdentifier" ) (SizeOf str1)) (App (App (App (Assignment str (IndexOf str1 (LanVar "illegalIdentifier"))) exp) (IndexAssignment str1 (LanVar "illegalIdentifier") (LanVar str))) (AddOne "illegalIdentifier"))))
 -- Evaluation for APP
 eval1 ((App e1 e2), env, k, xs, output) = (e1 , env , (HApp e2) : k, xs, output)
 eval1 ( v , env, (HApp e):k , xs, output) | isTerminated v = (e, env, k, xs, output) 
