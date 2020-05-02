@@ -80,16 +80,19 @@ checker e (SingleList e1) | checker e e1 == TypeInt = TypeList
 checker e (MultipleList e1 e2) | checker e e1 == TypeInt = checker e e2
 -- checker StreamRead
 checker e (StreamRead str) | isBinded str e == False = error "List has not been declared"
-                           | otherwise = TypeList
+                           | getBinding str e == TypeList = TypeList
 -- checker IndexOf
 checker e (IndexOf str e1) | isBinded str e == False = error "List has not been declared"
                            | (checker e e1) == TypeInt = checker e e1
 -- checker AddOneIndexOf
 checker e (AddOneIndexOf str e1) | isBinded str e == False = error "List has not been declared"
-                                 | (checker e e1) == TypeInt = checker e e1
+                                 | getBinding str e == TypeList && (checker e e1) == TypeInt = checker e e1
+-- checker AddOneIndexOf
+checker e (AddManyIndexOf str e1 e2) | isBinded str e == False = error "List has not been declared"
+                                     | getBinding str e == TypeList && (checker e e1) == TypeInt && (checker e e2) == TypeInt = checker e e1
 -- streamAssignment 
 checker e (IndexAssignment str index e1) | isBinded str e == False = error "List has not been declared"
-                                         | (checker e e1) == (checker e index) = checker e e1
+                                         | getBinding str e == TypeList && (checker e e1) == (checker e index) = checker e e1
 
 -- plus
 checker e (Plus e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
@@ -124,7 +127,7 @@ checker e (Or e1 e2) | checker e e1 == TypeBool && checker e e2 == TypeBool = Ty
 
 -- sizeOf
 checker e (SizeOf str) | isBinded str e == False = error "List has not been declared"
-                       | otherwise = TypeInt
+                       | getBinding str e == TypeList = TypeInt
 -- output
 checker e (Output exp) = TypeInt
 
@@ -153,6 +156,9 @@ checker e (App e1 e2 ) = checker (updateEnv e e1) e2
 
 checker e (AddOne str) | getBinding str e == TypeInt = TypeInt
                        | otherwise = error "variable hasn't been declared"
+                       
+checker e (AddMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
+                           | otherwise = error "variable hasn't been declared"
                        
 -- error
 checker e _ = error "Type Error"

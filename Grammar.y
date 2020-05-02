@@ -40,40 +40,42 @@ import Tokens
     '['         { TokenLSquareB _ }
     ']'         { TokenRSquareB _ }
     ':'         { TokenColon _ }
+    '+='        { TokenAddMany _ }
     forEach     { TokenForEach _}
     var         { TokenVar _ $$ }
     ReadStream  { TokenReadStream _ }
     sizeOf      { TokenSizeOf _ }
-    output       { TokenOutput _ }
+    output      { TokenOutput _ }
 
 %nonassoc if 
 %nonassoc else
 %nonassoc while
-%nonassoc int var true false output forEach
+%nonassoc int var true false output forEach 
 %nonassoc '(' ')' '{' '}' '[' ']' ':'
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||' 
 %left '+' '-'
 %left '*' '/' '%'
-%right '='
-%nonassoc 
-%left NEG
-%right APP
+%right '=' 
+%left NEG 
+%right APP 
 %%
 
 Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $6 }
     | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'             { IfElseStmt $3 $6 $10 }
     | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
+    | Exp Exp %prec APP                                            { App $1 $2 }
+    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
     | var '=' BoolValues ';'                                       { Assignment $1 $3 }
-    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
     | var '[' ']' '=' TypeList ';'                                 { TypeAssignment $1 $5 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
     | var '[' ']' '=' '[' list ']' ';'                             { Assignment $1 $6 }
     | var '[' ']' '=' EmptyList ';'                                { Assignment $1 $5 }
     | var '[' MathExp ']' '=' MathExp ';'                          { IndexAssignment $1 $3 $6 }
-    | Exp Exp %prec APP                                            { App $1 $2 }
     | output '(' MathExp ')' ';'                                   { Output $3 }
     | var '+''+' ';'                                               { AddOne $1 }
+    | var '+=' MathExp ';'                                         { AddMany $1 $3}
+    | var '[' MathExp ']' '+=' MathExp ';'                         { AddManyIndexOf $1 $3 $6}
     | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }
     | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
 
@@ -154,7 +156,9 @@ data Exp = App Exp Exp
          | SizeOf String
          | Output Exp
          | AddOne String
+         | AddMany String Exp
          | AddOneIndexOf String Exp
+         | AddManyIndexOf String Exp Exp
          | ForEach String String Exp
     deriving (Show, Eq)
 
