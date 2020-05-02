@@ -42,6 +42,7 @@ tokens :-
     \[               { tok ( \p s -> TokenLSquareB p) }
     \]               { tok ( \p s -> TokenRSquareB p) }
     \:               { tok ( \p s -> TokenColon p) }
+    "-="             { tok ( \p s -> TokenMinusMany p) }
     "+="             { tok ( \p s -> TokenAddMany p) }
     ReadStream       { tok ( \p s -> TokenReadStream p) }
     sizeOf           { tok ( \p s -> TokenSizeOf p) }
@@ -91,6 +92,7 @@ data Token =
     TokenForEach AlexPosn           |
     TokenColon AlexPosn             |
     TokenAddMany AlexPosn           |
+    TokenMinusMany AlexPosn         |
     TokenOutput AlexPosn
     deriving (Eq, Show)
 
@@ -130,6 +132,7 @@ tokenPosn (TokenSizeOf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenForEach (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAddMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenMinusMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenOutput (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 }

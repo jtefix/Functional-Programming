@@ -40,6 +40,7 @@ import Tokens
     '['         { TokenLSquareB _ }
     ']'         { TokenRSquareB _ }
     ':'         { TokenColon _ }
+    '-='        { TokenMinusMany _ }
     '+='        { TokenAddMany _ }
     forEach     { TokenForEach _}
     var         { TokenVar _ $$ }
@@ -75,6 +76,8 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | output '(' MathExp ')' ';'                                   { Output $3 }
     | var '+''+' ';'                                               { AddOne $1 }
     | var '+=' MathExp ';'                                         { AddMany $1 $3}
+    | var '-=' MathExp ';'                                         { MinusMany $1 $3}
+    | var '[' MathExp ']' '-=' MathExp ';'                         { MinusManyIndexOf $1 $3 $6}
     | var '[' MathExp ']' '+=' MathExp ';'                         { AddManyIndexOf $1 $3 $6}
     | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }
     | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
@@ -157,6 +160,8 @@ data Exp = App Exp Exp
          | Output Exp
          | AddOne String
          | AddMany String Exp
+         | MinusMany String Exp
+         | MinusManyIndexOf String Exp Exp
          | AddOneIndexOf String Exp
          | AddManyIndexOf String Exp Exp
          | ForEach String String Exp

@@ -87,8 +87,11 @@ checker e (IndexOf str e1) | isBinded str e == False = error "List has not been 
 -- checker AddOneIndexOf
 checker e (AddOneIndexOf str e1) | isBinded str e == False = error "List has not been declared"
                                  | getBinding str e == TypeList && (checker e e1) == TypeInt = checker e e1
--- checker AddOneIndexOf
+-- checker AddManyIndexOf
 checker e (AddManyIndexOf str e1 e2) | isBinded str e == False = error "List has not been declared"
+                                     | getBinding str e == TypeList && (checker e e1) == TypeInt && (checker e e2) == TypeInt = checker e e1
+-- checker MinusManyIndexOf
+checker e (MinusManyIndexOf str e1 e2) | isBinded str e == False = error "List has not been declared"
                                      | getBinding str e == TypeList && (checker e e1) == TypeInt && (checker e e2) == TypeInt = checker e e1
 -- streamAssignment 
 checker e (IndexAssignment str index e1) | isBinded str e == False = error "List has not been declared"
@@ -158,6 +161,9 @@ checker e (AddOne str) | getBinding str e == TypeInt = TypeInt
                        | otherwise = error "variable hasn't been declared"
                        
 checker e (AddMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
+                           | otherwise = error "variable hasn't been declared"
+                           
+checker e (MinusMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
                            | otherwise = error "variable hasn't been declared"
                        
 -- error

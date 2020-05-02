@@ -156,6 +156,8 @@ eval1 (v, env1, (HAssignment str env2):k, xs, output) | isTerminated v = (v, upd
 eval1 ((AddOne str), env, k, xs, output) = ((Assignment str (Plus (LanVar str) (LanInt 1))), env, k, xs, output)
 -- Evaluation for AddMany
 eval1 ((AddMany str e), env, k, xs, output) = ((Assignment str (Plus (LanVar str) e)), env, k, xs, output)
+-- Evaluation for MinusMany
+eval1 ((MinusMany str e), env, k, xs, output) = ((Assignment str (Minus (LanVar str) e)), env, k, xs, output)
 
 -- Evaluation for SizeOf
 eval1 ((SizeOf str), env, k, xs, output) = ((LanInt x), env1, k, xs, output)
@@ -178,6 +180,8 @@ eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs, output) | isTerminated
 eval1 ((AddOneIndexOf str e),env,k,xs,output) = ((IndexAssignment str e (Plus (IndexOf str e) (LanInt 1))),env,k,xs,output)
 -- Evaluation off AddManyIndexOf
 eval1 ((AddManyIndexOf str e e1),env,k,xs,output) = ((IndexAssignment str e (Plus (IndexOf str e) e1)),env,k,xs,output)
+-- Evaluation off MinusManyIndexOf
+eval1 ((MinusManyIndexOf str e e1),env,k,xs,output) = ((IndexAssignment str e (Minus (IndexOf str e) e1)),env,k,xs,output)
 
 -- Evaluation for StreamRead 
 eval1 ((StreamRead str), env, k, (x:xs), output) = (Assignment str (listToExp x), env, k, xs, output)
