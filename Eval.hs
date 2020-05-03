@@ -61,6 +61,9 @@ eval1 ((LanVar x), env, k, xs, output) = (e', env', k, xs, output)
 -- Rule for terminated evaluations
 eval1 (v,env,[], xs, output) | isTerminated v = (v,env,[], xs, output)
 
+-- Evaluation for Comment
+eval1 (Comment str,env,[], xs, output) = (LanTrue,env,[], xs, output)
+
 -- Evaluation for negate operator
 eval1 ((Negate e), env, k, xs, output) = ( e , env, (Neg):k, xs, output)
 eval1 ((LanInt n), env, (Neg) : k, xs, output) = (LanInt (-n), env, k, xs, output)
@@ -160,8 +163,10 @@ eval1 (v, env1, (HAssignment str env2):k, xs, output) | isTerminated v = (v, upd
 
 -- Evaluation for AddOne
 eval1 ((AddOne str), env, k, xs, output) = ((Assignment str (Plus (LanVar str) (LanInt 1))), env, k, xs, output)
+
 -- Evaluation for AddMany
 eval1 ((AddMany str e), env, k, xs, output) = ((Assignment str (Plus (LanVar str) e)), env, k, xs, output)
+
 -- Evaluation for MinusMany
 eval1 ((MinusMany str e), env, k, xs, output) = ((Assignment str (Minus (LanVar str) e)), env, k, xs, output)
 
@@ -184,8 +189,10 @@ eval1 ( v , env, (HIndexAssignment str (LanInt x):k), xs, output) | isTerminated
                                           (list, env1) = getValueBinding str env []
 -- Evaluation for Add one to an Indexed elem
 eval1 ((AddOneIndexOf str e),env,k,xs,output) = ((IndexAssignment str e (Plus (IndexOf str e) (LanInt 1))),env,k,xs,output)
+
 -- Evaluation off AddManyIndexOf
 eval1 ((AddManyIndexOf str e e1),env,k,xs,output) = ((IndexAssignment str e (Plus (IndexOf str e) e1)),env,k,xs,output)
+
 -- Evaluation off MinusManyIndexOf
 eval1 ((MinusManyIndexOf str e e1),env,k,xs,output) = ((IndexAssignment str e (Minus (IndexOf str e) e1)),env,k,xs,output)
 
@@ -202,9 +209,11 @@ eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e && output /= "
                                                  | isTerminated e = (LanTrue, env , k, xs, output'')
                                 where output' = output ++ "\n" ++  unparse e env1
                                       output'' = unparse e env1
+
 -- Evaluation forEach
 eval1 ((ForEach str str1 exp), env, k, xs, output) = (e, env, k, xs, output) 
             where e = (App (App (TypeAssignment TypeInt "illegalIdentifier") (Assignment "illegalIdentifier" (LanInt 1))) (WhileExp (LessOrEqThan (LanVar "illegalIdentifier" ) (SizeOf str1)) (App (App (App (Assignment str (IndexOf str1 (LanVar "illegalIdentifier"))) exp) (IndexAssignment str1 (LanVar "illegalIdentifier") (LanVar str))) (AddOne "illegalIdentifier"))))
+
 -- Evaluation for APP
 eval1 ((App e1 e2), env, k, xs, output) = (e1 , env , (HApp e2) : k, xs, output)
 eval1 ( v , env, (HApp e):k , xs, output) | isTerminated v = (e, env, k, xs, output) 

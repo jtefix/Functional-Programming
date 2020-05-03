@@ -43,17 +43,15 @@ tokens :-
     \]               { tok ( \p s -> TokenRSquareB p) }
     \:               { tok ( \p s -> TokenColon p) }
     \^               { tok ( \p s -> TokenPow p) }
-    "/*"             { tok ( \p s -> TokenCommentL p) }
-    "*/"             { tok ( \p s -> TokenCommentR p) }
     "-="             { tok ( \p s -> TokenMinusMany p) }
     "+="             { tok ( \p s -> TokenAddMany p) }
     ReadStream       { tok ( \p s -> TokenReadStream p) }
     sizeOf           { tok ( \p s -> TokenSizeOf p) }
     output           { tok ( \p s -> TokenOutput p) }
     forEach          { tok ( \p s -> TokenForEach p) } 
-    $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenVar p s) }
-    $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenString p s) }
-   
+    $alpha [$alpha $digit \_ \']*                                           { tok (\p s -> TokenVar p s) }
+    \/\* $white* $alpha* $digit* [$white $alpha $digit \_ \']* \*\/         { tok (\p s -> TokenComment p s) }
+  
 {
 
 --helper function
@@ -97,10 +95,9 @@ data Token =
     TokenForEach AlexPosn           |
     TokenColon AlexPosn             |
     TokenPow AlexPosn               |
-    TokenCommentL AlexPosn          |
-    TokenCommentR AlexPosn          |
     TokenAddMany AlexPosn           |
     TokenMinusMany AlexPosn         |
+    TokenComment AlexPosn String    |
     TokenOutput AlexPosn
     deriving (Eq, Show)
 
@@ -140,11 +137,10 @@ tokenPosn (TokenSizeOf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenForEach (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenPow (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenCommentL (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
-tokenPosn (TokenCommentR (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAddMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenMinusMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenOutput (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenComment (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenString (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 }

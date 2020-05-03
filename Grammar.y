@@ -39,12 +39,11 @@ import Tokens
     '}'         { TokenRCurlyB _ }
     '['         { TokenLSquareB _ }
     ']'         { TokenRSquareB _ }
-    '/*'        { TokenCommentL _ }
-    '*/'        { TokenCommentR _ }
     ':'         { TokenColon _ }
     '^'         { TokenPow _ }
     '-='        { TokenMinusMany _ }
     '+='        { TokenAddMany _ }
+    com         { TokenComment _ $$ }
     forEach     { TokenForEach _}
     var         { TokenVar _ $$ }
     ReadStream  { TokenReadStream _ }
@@ -57,12 +56,11 @@ import Tokens
 %nonassoc int var true false forEach 
 %nonassoc ReadStream SizeOf output
 %nonassoc '(' ')' '{' '}' '[' ']' ':'
-%nonassoc '/*' '*/'
 %nonassoc Bool Int ';' ','
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||' 
 %left '+' '-' '-=' '+='
 %left '*' '/' '%' '^'
-%right '=' 
+%right '=' com
 %left NEG 
 %right APP 
 %%
@@ -72,8 +70,10 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
     | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
     | Exp Exp %prec APP                                            { App $1 $2 }
-    | '/*' var '*/'                                                { Comment $2 }
-    | NewType ';'                                                  { $1 } 
+    | com                                                          { Comment $1 }
+    | Stmt                                                         { $1 }                    
+    
+Stmt : NewType ';'                                                 { $1 } 
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
     | var '=' BoolValues ';'                                       { Assignment $1 $3 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
@@ -125,7 +125,7 @@ NewType : Type var                                                 { TypeAssignm
 Type : Bool                                                        { TypeBool }
      | Int                                                         { TypeInt }
      | TypeList                                                    { TypeList }
-
+     
 TypeList: Int '[' ']'                                              { TypeList }
 
 EmptyList : '['']'                                                 { EmptyList }
@@ -179,7 +179,7 @@ data Exp = App Exp Exp
          | Comment String
     deriving (Show, Eq)
 
-data Type = TypeInt | TypeBool | TypeList
+data Type = TypeInt | TypeBool | TypeList | TypeComment 
       deriving (Show, Eq)
 
 type Environment = [ (String,Exp) ]  

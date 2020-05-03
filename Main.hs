@@ -20,9 +20,9 @@ main' = do
     input <- fmap lines (readFile file2)--getContents
     putStrLn ("Text to be parsed: " ++ problem)
     let string = parseCalc (alexScanTokens problem)
-    --putStrLn ("Parsed text: " ++ show string)
+    putStrLn ("Parsed text: " ++ show string)
     let typeOf = checker [] string
-  --  putStrLn ("TypeCheck: " ++ show typeOf) 
+    putStrLn ("TypeCheck: " ++ show typeOf) 
     let s1 = map (splitOn ' ') input
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2

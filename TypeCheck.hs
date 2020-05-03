@@ -45,6 +45,7 @@ checker e (LanInt x) = TypeInt
 checker e (LanVar x) = getBinding x e
 checker e (LanTrue) = TypeBool
 checker e (LanFalse) = TypeBool
+checker e (Comment str) = TypeComment
 
 -- emptyList
 checker e (EmptyList) = TypeList
@@ -71,7 +72,7 @@ checker e (MinusManyIndexOf str e1 e2) | isBinded str e == False = error "List h
 checker e (IndexAssignment str index e1) | isBinded str e == False = error "List has not been declared"
                                          | getBinding str e == TypeList && (checker e e1) == (checker e index) = checker e e1
 
--- plus
+-- plus 
 checker e (Plus e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
 -- minus
 checker e (Minus e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
@@ -85,7 +86,6 @@ checker e (Mod e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = Typ
 checker e (Negate e1) | checker e e1 == TypeInt = TypeInt
 -- power
 checker e (Pow e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
-
 
 -- less than
 checker e (LessThan e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeBool
@@ -116,6 +116,16 @@ checker e (TypeAssignment t str) | isBinded str e == False = checker (addBinding
 -- assignment 
 checker e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = checker e e2
 
+-- addOne
+checker e (AddOne str) | getBinding str e == TypeInt = TypeInt
+                       | otherwise = error "variable hasn't been declared"
+-- addMany              
+checker e (AddMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
+                           | otherwise = error "variable hasn't been declared"
+-- minusMany                 
+checker e (MinusMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
+                           | otherwise = error "variable hasn't been declared"
+
 -- if statement
 checker e (IfStmt e1 e2) | checker e e1 == TypeBool = checker e e2
                          | otherwise = error "Type error in if"
@@ -132,15 +142,6 @@ checker e (ForEach str str1 e1) | getBinding str e == TypeInt && getBinding str1
                                 | otherwise = error "Type error forEach"
 -- App
 checker e (App e1 e2 ) = checker (updateEnv e e1) e2
-
-checker e (AddOne str) | getBinding str e == TypeInt = TypeInt
-                       | otherwise = error "variable hasn't been declared"
-                       
-checker e (AddMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
-                           | otherwise = error "variable hasn't been declared"
-                           
-checker e (MinusMany str e1) | getBinding str e == TypeInt && (checker e e1 == TypeInt) = TypeInt
-                           | otherwise = error "variable hasn't been declared"
                        
 -- error
 checker e _ = error "Type Error"
