@@ -36,9 +36,6 @@ getValueBinding x [] _ = error "Variable binding not found"
 getValueBinding x ((y,e):env) env2 | x == y = (e,(y,e):env ++ env2)
                                    | otherwise = getValueBinding x env ((y,e):env2)
 
--- updateEnvironment :: String -> Exp -> Environment -> Environment
--- updateEnvironment str t env = [(str, t)] ++ env
-
 update :: Environment -> Environment -> String -> Exp -> Environment
 update [] newEnv s e = (s,e) : newEnv
 update ((x,y):oldEnv) newEnv s e | s == x = (s,e) : newEnv ++ oldEnv
@@ -224,7 +221,7 @@ eval1 ((LanTrue), env1, (HWhile e1 e2 env):k, xs, output) = (e2, env, (WhileStmt
 eval1 ((LanFalse), env1, ((HWhile e1 e2 env):k), xs, output) = (LanFalse, env, k, xs, output)
 eval1 ( _ , env1, (WhileStmt e1 e2 env):k, xs, output) = (e1, env1, (HWhile e1 e2 env1):k, xs, output)
 
-eval1 _ = error "BAG PULA DC NU STIU"
+eval1 _ = error "Evaluation error"
 
 -- Function to iterate the small step reduction to termination
 evalLoop :: Exp -> [[Int]] -> String -- GO BACK HEREEEE

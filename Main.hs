@@ -15,14 +15,11 @@ main :: IO ()
 main = catch main' noParse
 
 main' = do 
-    (file1 : file2 : _) <- getArgs
-    problem <- readFile file1
-    input <- fmap lines (readFile file2)--getContents
-    putStrLn ("Text to be parsed: " ++ problem)
+    (file :  _) <- getArgs
+    problem <- readFile file
+    input <- fmap lines getContents
     let string = parseCalc (alexScanTokens problem)
-    putStrLn ("Parsed text: " ++ show string)
-    let typeOf = checker [] string
-    putStrLn ("TypeCheck: " ++ show typeOf) 
+    let typeOf = checker [] string 
     let s1 = map (splitOn ' ') input
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2
