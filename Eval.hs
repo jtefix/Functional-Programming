@@ -188,7 +188,7 @@ eval1 ((StreamRead str), env, k, (x:xs), output) = (Assignment str (listToExp x)
 eval1 ((StreamRead str), env, k, [], output) = (Assignment str EmptyList, env,k,[], output);
 
 -- Evaluation for type assignment
-eval1 ((TypeAssignment str t), env, k, xs, output) = (LanTrue, env, k, xs, output)
+eval1 ((TypeAssignment t str), env, k, xs, output) = (LanTrue, env, k, xs, output)
 
 -- Evaluation for Output
 eval1 ((Output e), env, k, xs, output) = (e, env, (HOutput e env):k, xs, output)
@@ -198,7 +198,7 @@ eval1 (e, env1, (HOutput e1 env):k, xs, output ) | isTerminated e && output /= "
                                       output'' = unparse e env1
 -- Evaluation forEach
 eval1 ((ForEach str str1 exp), env, k, xs, output) = (e, env, k, xs, output) 
-            where e = (App (App (TypeAssignment "illegalIdentifier" TypeInt) (Assignment "illegalIdentifier" (LanInt 1))) (WhileExp (LessOrEqThan (LanVar "illegalIdentifier" ) (SizeOf str1)) (App (App (App (Assignment str (IndexOf str1 (LanVar "illegalIdentifier"))) exp) (IndexAssignment str1 (LanVar "illegalIdentifier") (LanVar str))) (AddOne "illegalIdentifier"))))
+            where e = (App (App (TypeAssignment TypeInt "illegalIdentifier") (Assignment "illegalIdentifier" (LanInt 1))) (WhileExp (LessOrEqThan (LanVar "illegalIdentifier" ) (SizeOf str1)) (App (App (App (Assignment str (IndexOf str1 (LanVar "illegalIdentifier"))) exp) (IndexAssignment str1 (LanVar "illegalIdentifier") (LanVar str))) (AddOne "illegalIdentifier"))))
 -- Evaluation for APP
 eval1 ((App e1 e2), env, k, xs, output) = (e1 , env , (HApp e2) : k, xs, output)
 eval1 ( v , env, (HApp e):k , xs, output) | isTerminated v = (e, env, k, xs, output) 

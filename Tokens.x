@@ -42,6 +42,8 @@ tokens :-
     \[               { tok ( \p s -> TokenLSquareB p) }
     \]               { tok ( \p s -> TokenRSquareB p) }
     \:               { tok ( \p s -> TokenColon p) }
+    "/*"             { tok ( \p s -> TokenCommentL p) }
+    "*/"             { tok ( \p s -> TokenCommentR p) }
     "-="             { tok ( \p s -> TokenMinusMany p) }
     "+="             { tok ( \p s -> TokenAddMany p) }
     ReadStream       { tok ( \p s -> TokenReadStream p) }
@@ -49,6 +51,7 @@ tokens :-
     output           { tok ( \p s -> TokenOutput p) }
     forEach          { tok ( \p s -> TokenForEach p) } 
     $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenVar p s) }
+    $alpha [$alpha $digit \_ \']*        { tok (\p s -> TokenString p s) }
    
 {
 
@@ -87,10 +90,13 @@ data Token =
     TokenLSquareB AlexPosn          |
     TokenRSquareB AlexPosn          |
     TokenVar AlexPosn String        |
+    TokenString AlexPosn String     |
     TokenReadStream AlexPosn        |
     TokenSizeOf AlexPosn            |
     TokenForEach AlexPosn           |
     TokenColon AlexPosn             |
+    TokenCommentL AlexPosn          |
+    TokenCommentR AlexPosn          |
     TokenAddMany AlexPosn           |
     TokenMinusMany AlexPosn         |
     TokenOutput AlexPosn
@@ -131,8 +137,11 @@ tokenPosn (TokenReadStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenSizeOf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenForEach (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentL (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenCommentR (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAddMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenMinusMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenOutput (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenVar (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenString (AlexPn a l c) _ ) = show(l) ++ ":" ++ show(c)
 }

@@ -39,6 +39,8 @@ import Tokens
     '}'         { TokenRCurlyB _ }
     '['         { TokenLSquareB _ }
     ']'         { TokenRSquareB _ }
+    '/*'        { TokenCommentL _ }
+    '*/'        { TokenCommentR _ }
     ':'         { TokenColon _ }
     '-='        { TokenMinusMany _ }
     '+='        { TokenAddMany _ }
@@ -51,10 +53,13 @@ import Tokens
 %nonassoc if 
 %nonassoc else
 %nonassoc while
-%nonassoc int var true false output forEach 
+%nonassoc int var true false forEach 
+%nonassoc ReadStream SizeOf output
 %nonassoc '(' ')' '{' '}' '[' ']' ':'
+%nonassoc '/*' '*/'
+%nonassoc Bool Int ';' ','
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||' 
-%left '+' '-'
+%left '+' '-' '-=' '+='
 %left '*' '/' '%'
 %right '=' 
 %left NEG 
@@ -64,11 +69,12 @@ import Tokens
 Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $6 }
     | if '(' ShortExp ')' '{' Exp '}' else '{' Exp '}'             { IfElseStmt $3 $6 $10 }
     | while '(' ShortExp ')' '{' Exp '}'                           { WhileExp $3 $6 }
+    | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
     | Exp Exp %prec APP                                            { App $1 $2 }
-    | var '=' Type ';'                                             { TypeAssignment $1 $3 }
+    | '/*' var '*/'                                                { Comment $2 }
+    | NewType ';'                                                      { $1 }
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
     | var '=' BoolValues ';'                                       { Assignment $1 $3 }
-    | var '[' ']' '=' TypeList ';'                                 { TypeAssignment $1 $5 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
     | var '[' ']' '=' '[' list ']' ';'                             { Assignment $1 $6 }
     | var '[' ']' '=' EmptyList ';'                                { Assignment $1 $5 }
@@ -79,8 +85,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | var '-=' MathExp ';'                                         { MinusMany $1 $3}
     | var '[' MathExp ']' '-=' MathExp ';'                         { MinusManyIndexOf $1 $3 $6}
     | var '[' MathExp ']' '+=' MathExp ';'                         { AddManyIndexOf $1 $3 $6}
-    | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }
-    | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
+    | var '[' MathExp ']' '+''+'';'                                { AddOneIndexOf $1 $3 }  
 
 ShortExp : MathExp '<' MathExp                                     { LessThan $1 $3 }  
          | MathExp '<=' MathExp                                    { LessOrEqThan $1 $3 }
@@ -112,11 +117,11 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
 list : MathExp                                                     { SingleList $1 }
      | MathExp ',' list                                            { MultipleList $1 $3 }
 
+NewType : Type var                                             { TypeAssignment $1 $2 }
+        | Type '[' ']' var '[' ']'                                 { TypeAssignment $1 $4 }
+
 Type : Bool                                                        { TypeBool }
      | Int                                                         { TypeInt }
-     | TypeList                                                    { $1 }
-    
-TypeList : '[' Int ']'                                             { TypeList }
 
 EmptyList : '['']'                                                 { EmptyList }
 
@@ -128,7 +133,7 @@ parseError (t:_) = error ("Parse error at line:column " ++ ( tokenPosn t))
 
 data Exp = App Exp Exp
          | Assignment String Exp
-         | TypeAssignment String Type
+         | TypeAssignment Type String
          | Plus Exp Exp
          | Minus Exp Exp
          | Mult Exp Exp
@@ -150,6 +155,7 @@ data Exp = App Exp Exp
          | IfStmt Exp Exp
          | IfElseStmt Exp Exp Exp
          | WhileExp Exp Exp
+         | ForEach String String Exp
          | StreamRead String
          | IndexAssignment String Exp Exp
          | IndexOf String Exp
@@ -164,7 +170,7 @@ data Exp = App Exp Exp
          | MinusManyIndexOf String Exp Exp
          | AddOneIndexOf String Exp
          | AddManyIndexOf String Exp Exp
-         | ForEach String String Exp
+         | Comment String
     deriving (Show, Eq)
 
 data Type = TypeInt | TypeBool | TypeList

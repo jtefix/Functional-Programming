@@ -1,32 +1,6 @@
 module TypeCheck where
 import Grammar
 
--- data Exp = Plus Exp Exp
---          | Assignment String Exp
---          | TypeAssignment String Type
---          | StmtList Exp Exp
---          | Minus Exp Exp
---          | Mult Exp Exp
---          | Div Exp Exp
---          | Mod Exp Exp
---          | LessThan Exp Exp
---          | LessOrEqThan Exp Exp
---          | BiggerThan Exp Exp
---          | BiggerOrEqThan Exp Exp
---          | IsEq Exp Exp
---          | And Exp Exp
---          | Or Exp Exp
---          | LanTrue
---          | LanFalse
---          | LanInt Int
---          | LanVar String
---          | IfStmt Exp StmtList
---          | IfElseStmt Exp StmtList StmtList
---          | WhileExp Exp StmtList
---     deriving (Show, Eq)
--- data Type = TypeInt | TypeBool 
---       deriving (Show, Eq)
-
 type TypeEnvironment = [(String, Type)]
 
 getBinding :: String -> TypeEnvironment -> Type
@@ -58,9 +32,9 @@ updateEnv e (EmptyList) = e
 -- Multiple Expressions
 updateEnv e (App e1 e2) = updateEnv (updateEnv e e1) e2
 -- Type Assignment
-updateEnv e (TypeAssignment str t) | isBinded str e == False = updateEnv (addBinding str t e) (TypeAssignment str t)
+updateEnv e (TypeAssignment t str) | isBinded str e == False = updateEnv (addBinding str t e) (TypeAssignment t str)
                                    | getBinding str e == t = e
-                                   | otherwise = updateEnv (updateBinding str t e []) (TypeAssignment str t)
+                                   | otherwise = updateEnv (updateBinding str t e []) (TypeAssignment t str)
 -- Assignment
 updateEnv e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = updateEnv e e2
 updateEnv e _ = e
@@ -135,7 +109,7 @@ checker e (SizeOf str) | isBinded str e == False = error "List has not been decl
 checker e (Output exp) = TypeInt
 
 -- type assignment 
-checker e (TypeAssignment str t) | isBinded str e == False = checker (addBinding str t e) (TypeAssignment str t)
+checker e (TypeAssignment t str) | isBinded str e == False = checker (addBinding str t e) (TypeAssignment t str)
                                  | otherwise = t
 -- assignment 
 checker e (Assignment e1 e2) | (checker e e2) == (getBinding e1 e) = checker e e2
