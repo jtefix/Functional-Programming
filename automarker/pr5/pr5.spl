@@ -1,14 +1,14 @@
-a[] = [Int];
-a[] = ReadStream;
+Int[] x[];
+x[] = ReadStream;
 
-s = Int;
-n = Int;
+Int s;
+Int n;
 n = 1;
 s = 0;
 
-while ( n <= sizeOf(a[])) {
-s = s + a[n];
-n = n + 1;
-output(s);
+while ( n <= sizeOf(x[])) {
+    s += x[n];
+    n++;
+    output(s);
 }
 

@@ -1,19 +1,19 @@
-a[] = [Int];
-b[] = [Int];
-c[] = [Int];
+Int[] z[];
+Int[] y[];
+Int[] z[];
 
-a[] = ReadStream;
-b[] = ReadStream;
-c[] = ReadStream;
+x[] = ReadStream;
+y[] = ReadStream;
+z[] = ReadStream;
 
-n = Int;
+Int n;
 n = 1;
 
-while(n <= sizeOf(a[])) {
-output(c[n]);
-output(b[n]);
-output(a[n]);
-output(a[n] + b[n]);
-output(b[n] + c[n]);
-n = n + 1;
+while(n <= sizeOf(x[])) {
+    output(z[n]);
+    output(y[n]);
+    output(x[n]);
+    output(x[n] + y[n]);
+    output(y[n] + z[n]);
+    n++;
 }
