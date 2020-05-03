@@ -72,7 +72,7 @@ Exp : if '(' ShortExp ')' '{' Exp '}'                              { IfStmt $3 $
     | forEach '(' var ':' var '[' ']' ')' '{' Exp '}'              { ForEach $3 $5 $10 }
     | Exp Exp %prec APP                                            { App $1 $2 }
     | '/*' var '*/'                                                { Comment $2 }
-    | NewType ';'                                                      { $1 }
+    | NewType ';'                                                  { $1 } 
     | var '=' MathExp ';'                                          { Assignment $1 $3 }
     | var '=' BoolValues ';'                                       { Assignment $1 $3 }
     | var '[' ']' '=' ReadStream ';'                               { StreamRead $1 }
@@ -117,11 +117,14 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
 list : MathExp                                                     { SingleList $1 }
      | MathExp ',' list                                            { MultipleList $1 $3 }
 
-NewType : Type var                                             { TypeAssignment $1 $2 }
-        | Type '[' ']' var '[' ']'                                 { TypeAssignment $1 $4 }
+NewType : Type var                                                 { TypeAssignment $1 $2 }
+        | Type var '[' ']'                                 { TypeAssignment $1 $2 }
 
 Type : Bool                                                        { TypeBool }
      | Int                                                         { TypeInt }
+     | TypeList                                                    { TypeList }
+
+TypeList: Int '[' ']'                                              { TypeList }
 
 EmptyList : '['']'                                                 { EmptyList }
 

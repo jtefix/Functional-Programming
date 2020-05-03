@@ -42,6 +42,7 @@ tokens :-
     \[               { tok ( \p s -> TokenLSquareB p) }
     \]               { tok ( \p s -> TokenRSquareB p) }
     \:               { tok ( \p s -> TokenColon p) }
+    \^               { tok ( \p s -> TokenPow p) }
     "/*"             { tok ( \p s -> TokenCommentL p) }
     "*/"             { tok ( \p s -> TokenCommentR p) }
     "-="             { tok ( \p s -> TokenMinusMany p) }
@@ -95,6 +96,7 @@ data Token =
     TokenSizeOf AlexPosn            |
     TokenForEach AlexPosn           |
     TokenColon AlexPosn             |
+    TokenPow AlexPosn               |
     TokenCommentL AlexPosn          |
     TokenCommentR AlexPosn          |
     TokenAddMany AlexPosn           |
@@ -137,6 +139,7 @@ tokenPosn (TokenReadStream (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenSizeOf (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenForEach (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenColon (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
+tokenPosn (TokenPow (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenCommentL (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenCommentR (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
 tokenPosn (TokenAddMany (AlexPn a l c)) = show(l) ++ ":" ++ show(c)
