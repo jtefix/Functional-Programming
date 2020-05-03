@@ -6,6 +6,7 @@ data Frame = PlusH Exp | HPlus Exp Environment
            | MultH Exp | HMult Exp Environment
            | DivH Exp | HDiv Exp Environment
            | ModH Exp | HMod Exp Environment
+           | PowH Exp | HPow Exp Environment
            | LessThanH Exp | HLessThan Exp Environment
            | LessOrEqThanH Exp | HLessOrEqThan Exp Environment
            | BiggerThanH Exp | HBiggerThan Exp Environment
@@ -88,6 +89,11 @@ eval1 ((LanInt m),env,(DivH (LanInt n)):k, xs, output) = (LanInt (n `div` m),env
 eval1 ((Mod e1 e2),env,k, xs, output) = (e1,env,(HMod e2 env):k, xs, output)
 eval1 ((LanInt n),env1,(HMod e env2):k, xs, output) = (e,env2,(ModH (LanInt n)) : k, xs, output)
 eval1 ((LanInt m),env,(ModH (LanInt n)):k, xs, output) = (LanInt (n `mod` m),env,k, xs, output)
+
+-- Evaluation rules for pow operator
+eval1 ((Pow e1 e2),env,k, xs, output) = (e1,env,(HPow e2 env):k, xs, output)
+eval1 ((LanInt n),env1,(HPow e env2):k, xs, output) = (e,env2,(PowH (LanInt n)) : k, xs, output)
+eval1 ((LanInt m),env,(PowH (LanInt n)):k, xs, output) = (LanInt (n ^ m),env,k, xs, output)
 
 -- Evaluation rules for less than operator
 eval1 ((LessThan e1 e2), env, k, xs, output) = (e1, env, (HLessThan e2 env):k, xs, output)

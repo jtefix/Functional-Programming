@@ -83,6 +83,8 @@ checker e (Div e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = Typ
 checker e (Mod e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
 -- negate
 checker e (Negate e1) | checker e e1 == TypeInt = TypeInt
+-- power
+checker e (Pow e1 e2) | checker e e1 == TypeInt && checker e e2 == TypeInt = TypeInt
 
 
 -- less than

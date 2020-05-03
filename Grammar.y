@@ -42,6 +42,7 @@ import Tokens
     '/*'        { TokenCommentL _ }
     '*/'        { TokenCommentR _ }
     ':'         { TokenColon _ }
+    '^'         { TokenPow _ }
     '-='        { TokenMinusMany _ }
     '+='        { TokenAddMany _ }
     forEach     { TokenForEach _}
@@ -60,7 +61,7 @@ import Tokens
 %nonassoc Bool Int ';' ','
 %left '<' '<=' '>' '>=' '==' '!=' '&&' '||' 
 %left '+' '-' '-=' '+='
-%left '*' '/' '%'
+%left '*' '/' '%' '^'
 %right '=' 
 %left NEG 
 %right APP 
@@ -106,6 +107,7 @@ MathExp : MathExp '+' MathExp                                      { Plus $1 $3 
         | MathExp '*' MathExp                                      { Mult $1 $3 }
         | MathExp '/' MathExp                                      { Div $1 $3 }
         | MathExp '%' MathExp                                      { Mod $1 $3 }
+        | MathExp '^' MathExp                                      { Pow $1 $3 }
         | '-' MathExp %prec NEG                                    { Negate $2 }
         | '(' Exp ')'                                              { $2 }
         | var '[' MathExp ']'                                      { IndexOf $1 $3 }
@@ -118,7 +120,7 @@ list : MathExp                                                     { SingleList 
      | MathExp ',' list                                            { MultipleList $1 $3 }
 
 NewType : Type var                                                 { TypeAssignment $1 $2 }
-        | Type var '[' ']'                                 { TypeAssignment $1 $2 }
+        | Type var '[' ']'                                         { TypeAssignment $1 $2 }
 
 Type : Bool                                                        { TypeBool }
      | Int                                                         { TypeInt }
@@ -143,6 +145,7 @@ data Exp = App Exp Exp
          | Div Exp Exp
          | Mod Exp Exp
          | Negate Exp
+         | Pow Exp Exp
          | LessThan Exp Exp
          | LessOrEqThan Exp Exp
          | BiggerThan Exp Exp
