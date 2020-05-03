@@ -24,9 +24,8 @@ main' = do
     let s2 = map (map read) s1 :: [[Int]]
     let s3 = multiZip s2
     let result = evalLoop string s3
-    putStr result
-    
-
+    if (null result) then (return ()) else (putStr result) 
+     
 noParse :: ErrorCall -> IO ()
 noParse e = do
     let err = show e
