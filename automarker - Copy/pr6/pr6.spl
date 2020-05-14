@@ -1,0 +1,49 @@
+Int[] x[];
+Int[] y[];
+
+x[] = ReadStream;
+y[] = ReadStream;
+
+Int end;
+Int a;
+Int b;
+Int c;
+
+end = 0;
+a = 1;
+b = 1;
+c = 2;
+
+while(a <= sizeOf(x[])){
+
+    if(c == 2){
+        output(x[a]);
+        if(a + 1 <= sizeOf(x[])){
+            output(x[a+1]);
+            c = 3;
+        }
+        a+=2;
+    }
+
+    if(c == 3){
+        if(b <= sizeOf(y[])){
+            output(y[b]);
+            b++;
+        }
+        if(b <= sizeOf(y[])){
+            output(y[b]);
+            b++;
+        }
+        if(b <= sizeOf(y[])){
+            output(y[b]);
+            b++;
+            c = 2;
+        }
+        if(b > sizeOf(y[])){
+            if(c == 3){
+                a+=100;
+            }
+        }
+    }
+
+}

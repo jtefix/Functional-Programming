@@ -1,0 +1,45 @@
+Int[] x[];
+x[] = ReadStream;
+
+if(sizeOf(x[]) == 1){
+    output(x[1]);
+}
+
+if(sizeOf(x[]) >= 2){
+    output(x[1]);
+    output(x[1]+x[2]);
+}
+
+Int fib1;
+Int fib2;
+Int fib3;
+Int position;
+Int sum;
+Int n;
+Int a;
+Int i;
+
+n = 3;
+
+while(n <= sizeOf(x[])){
+    i = 1;
+    sum = 0;
+    position = n;
+    while(i<=n-2){
+        a = 3;
+        fib1 = 1;
+        fib2 = 1;
+        while(a <= position){
+            fib3 = fib1 + fib2;
+            fib1 = fib2;
+            fib2 = fib3;
+            a++;
+        }
+        sum = sum + fib3 * x[i];
+        i++;
+        position-=1;
+    }
+    sum = sum + x[i] + x[i+1];
+    output(sum);
+    n++;
+}

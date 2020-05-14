@@ -1,0 +1,11 @@
+Int[] x[];
+x[] = ReadStream;
+
+Int n;
+n = 1;
+
+while(n <= sizeOf(x[])){
+    output(x[n]);
+    output(n);
+    n++;
+}

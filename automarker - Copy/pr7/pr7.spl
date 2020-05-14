@@ -1,0 +1,17 @@
+Int[] x[];
+x[] = ReadStream;
+
+Int a;
+a = 3;
+
+Int b;
+b = 7;
+
+while(a <= sizeOf(x[])){
+    output(x[a]);
+    if(b<= sizeOf(x[])){
+        output(x[b]);
+    }
+    a += 7;
+    b += 7;
+}
